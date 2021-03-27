@@ -5,6 +5,7 @@ import pandas as pd
 import csv
 import warnings
 from pprint import pprint
+import file_path
 
 # SettingWithCopyWarningの非表示
 warnings.simplefilter("ignore")
@@ -45,11 +46,13 @@ user = "c"
 # speak = 'change'
 speak = "non"
 
+print(file_path.csv_path)
+
 # 特徴量の抽出
 # turn-keepかtakingでpathを変える必要あり
-time_speak_path = (
-    "/Users/fuyan/Documents/siraisi_lab/B4/40_program/csv/speak-20201015/face_%s_speak_%s.csv"
-    % (user, speak)
+time_speak_path = file_path.csv_path + "/speak-20201015/face_%s_speak_%s.csv" % (
+    user,
+    speak,
 )
 
 # OpenFaceによる顔特徴データ
