@@ -6,6 +6,7 @@ import csv
 import warnings
 from pprint import pprint
 import file_path
+import Common
 
 # SettingWithCopyWarningの非表示
 warnings.simplefilter("ignore")
@@ -45,8 +46,6 @@ user = "c"
 # speak = 'keep'
 # speak = 'change'
 speak = "non"
-
-print(file_path.csv_path)
 
 # 特徴量の抽出
 # turn-keepかtakingでpathを変える必要あり
@@ -130,51 +129,16 @@ feature_value_list = []
 for i in range(len(feature_list)):
     feature_value_list.append(feature_list[i])
 
-header = [
-    "ave_gaze_x",
-    "std_gaze_x",
-    "min_gaze_x",
-    "max_gaze_x",
-    "median_gaze_x",
-    "ave_gaze_y",
-    "std_gaze_y",
-    "min_gaze_y",
-    "max_gaze_y",
-    "median_gaze_y",
-    "ave_poze_x",
-    "std_poze_x",
-    "min_poze_x",
-    "max_poze_x",
-    "median_poze_x",
-    "ave_poze_y",
-    "std_poze_y",
-    "min_poze_y",
-    "max_poze_y",
-    "median_poze_y",
-    "ave_poze_z",
-    "std_poze_z",
-    "min_poze_z",
-    "max_poze_z",
-    "median_poze_z",
-    "ave_mouth",
-    "std_mouth",
-    "min_mouth",
-    "max_mouth",
-    "median_mouth",
-]
-
 with open(
-    "/Users/fuyan/Documents/siraisi_lab/B4/40_program/csv/%s-output_feature_value_%s.csv"
-    % (user, speak),
+    file_path.csv_path + "/%s-output_feature_value_%s.csv" % (user, speak),
     "w",
 ) as f:
     writer = csv.writer(f)
-    writer.writerow(header)
+    writer.writerow(Common.feature_colums)
     writer.writerows(feature_value_list)
 
 # 特徴量csvの読み取り
 feature_csv = pd.read_csv(
-    "/Users/fuyan/Documents/siraisi_lab/B4/40_program/csv/%s-output_feature_value_%s.csv"
-    % (user, speak)
+    file_path.csv_path + "/%s-output_feature_value_%s.csv" % (user, speak)
 )
 print(feature_csv)
