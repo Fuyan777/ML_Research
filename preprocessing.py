@@ -15,8 +15,13 @@ warnings.simplefilter("ignore")
 date = "20210115"
 user = "a"
 speak = "keep-v2"
-# speak = 'change'
+# speak = "change-v2"
 # speak = "non"
+
+speak_type = ["keep-v2", "non"]
+
+for spaek in speak_type:
+    print(speak)
 
 # 特徴量の抽出
 # turn-keepかtakingでpathを変える必要あり
