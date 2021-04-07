@@ -7,6 +7,7 @@ import warnings
 from pprint import pprint
 import file_path
 import common
+from sklearn.preprocessing import StandardScaler
 
 # SettingWithCopyWarningの非表示
 warnings.simplefilter("ignore")
@@ -14,9 +15,9 @@ warnings.simplefilter("ignore")
 # パス設定
 date = "20210115"
 user = "a"
-speak = "keep-v2"
+# speak = "keep-v2"
 # speak = "change-v2"
-# speak = "non"
+speak = "non"
 
 speak_type = ["keep-v2", "non"]
 
@@ -107,10 +108,10 @@ for speak_index in df_sp.index:
 
     # csvに書き込み
     df_all_feature_sorted.to_csv(
-        file_path.csv_path + "/%s-output_feature_value_%s.csv" % (user, speak),
+        file_path.feature_path + "/%s-output/feature_value_%s.csv" % (user, speak),
         mode="a",  # 上書き
         header=False,
     )
 
 df_header = pd.DataFrame(columns=common.feature_colums_reindex)
-df_header.to_csv(file_path.csv_path + "/header.csv")
+df_header.to_csv(file_path.feature_path + "/header.csv")

@@ -15,33 +15,18 @@ from mlxtend.plotting import plot_decision_regions
 import csv
 from matplotlib.colors import ListedColormap
 import matplotlib.pyplot as plt
+import common
 
-speak_columns = [
-    "speak",
-    "ave_gaze_x", "std_gaze_x", "min_gaze_x", "max_gaze_x", "median_gaze_x",
-    "ave_gaze_y", "std_gaze_y", "min_gaze_y", "max_gaze_y", "median_gaze_y",
-    # "ave_poze_x", "std_poze_x", "min_poze_x", "max_poze_x", "median_poze_x",
-    "ave_poze_y", "std_poze_y", "min_poze_y", "max_poze_y", "median_poze_y",
-    "ave_poze_z", "std_poze_z", "min_poze_z", "max_poze_z", "median_poze_z",
-    "ave_mouth", "std_mouth", "min_mouth", "max_mouth", "median_mouth",
-]
-
-df = pd.read_csv("/Users/fuyan/Documents/siraisi_lab/B4/40_program/feature/a_feature_value/feature_value_std_change_non.csv", encoding="utf-8")
-speak_data = pd.DataFrame(df, columns=speak_columns)
-
-feature = [
-    "ave_gaze_x", "std_gaze_x", "min_gaze_x", "max_gaze_x", "median_gaze_x",
-    "ave_gaze_y", "std_gaze_y", "min_gaze_y", "max_gaze_y", "median_gaze_y",
-    # "ave_poze_x", "std_poze_x", "min_poze_x", "max_poze_x", "median_poze_x",
-    "ave_poze_y", "std_poze_y", "min_poze_y", "max_poze_y", "median_poze_y",
-    "ave_poze_z", "std_poze_z", "min_poze_z", "max_poze_z", "median_poze_z",
-    "ave_mouth", "std_mouth", "min_mouth", "max_mouth", "median_mouth",
-]
+df = pd.read_csv(
+    "/Users/fuyan/Documents/siraisi_lab/M1/04_program/feature/a-output/feature_value.csv",
+    encoding="utf-8",
+)
+speak_data = pd.DataFrame(df, columns=common.speak_columns)
 
 y = speak_data.loc[:, "speak"]
 
-X = speak_data.loc[:, feature]
-x_data = X.loc[:, feature].values
+X = speak_data.loc[:, common.feature_colums_reindex]
+x_data = X.loc[:, common.feature_colums_reindex].values
 y_data = y.values
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
@@ -54,15 +39,17 @@ y_pred = cross_val_predict(rf, X, y, cv=5)
 
 print(confusion_matrix(y, y_pred))
 
-scores = cross_val_score(rf, X, y, cv=5, scoring='f1_macro')
+scores = cross_val_score(rf, X, y, cv=5, scoring="f1_macro")
 print("f_score : {}\n".format(scores))
-print('Average score(F-measure): {}'.format(np.mean(scores)))
+print("Average score(F-measure): {}".format(np.mean(scores)))
 
 print("----------")
 print("accuracy_score : {}".format(round(accuracy_score(y, y_pred), 3)))
-print("recall_score : {}".format(round(recall_score(y, y_pred, average='macro'), 3)))
+print("recall_score : {}".format(round(recall_score(y, y_pred, average="macro"), 3)))
 # print("recall_score : {}".format(round(recall_score(y, y_pred), 3)))
-print("precision_score : {}".format(round(precision_score(y, y_pred, average='macro'), 3)))
+print(
+    "precision_score : {}".format(round(precision_score(y, y_pred, average="macro"), 3))
+)
 # print("precision_score : {}".format(round(precision_score(y, y_pred), 3)))
 print("----------")
 fti = rf.feature_importances_
@@ -71,7 +58,9 @@ fti = rf.feature_importances_
 # for i in range(len(feature)):
 #     print('\t{0:20s} : {1:>.6f}'.format(feature[i], fti[i]))
 
-importance = pd.DataFrame({"var": X_train.columns, "importance": rf.feature_importances_})
+importance = pd.DataFrame(
+    {"var": X_train.columns, "importance": rf.feature_importances_}
+)
 print("----importance------")
 print(importance)
 print("--------------------")
@@ -83,8 +72,8 @@ dot_data = tree.export_graphviz(
     out_file=None,
     filled=True,
     rounded=True,
-    feature_names=feature,
-    special_characters=True
+    feature_names=common.feature_colums_reindex,
+    special_characters=True,
 )
 graph = pdp.graph_from_dot_data(dot_data)
 graph.write_png(filename)
@@ -117,6 +106,6 @@ sns.heatmap(
     corr_matrix,
     square=True,
     xticklabels=corr_matrix.columns.values,
-    yticklabels=corr_matrix.columns.values
+    yticklabels=corr_matrix.columns.values,
 )
-plt.savefig('/Users/fuyan/Documents/siraisi_lab/B4/40_program/graph/sns/sns-rf_x.png')
+# plt.savefig("/Users/fuyan/Documents/siraisi_lab/B4/40_program/graph/sns/sns-rf_x.png")
