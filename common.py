@@ -118,7 +118,6 @@ feature_colums_reindex = [
     "std_gaze_y",
     "max_gaze_y",
     "min_gaze_y",
-    "min_gaze_y",
     "med_gaze_y",
     "skew_gaze_y",
     "kurt_gaze_y",
