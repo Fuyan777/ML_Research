@@ -22,12 +22,12 @@ from sklearn.feature_selection import RFE
 n = 10
 
 df = pd.read_csv(
-    "/Users/fuyan/Documents/siraisi_lab/M1/04_program/feature/a-output/w16_std/feature_value_keep_std.csv",
+    "/Users/fuyan/Documents/ml-research/csv/a-feature/feature_value/feature_value.csv",
     encoding="utf-8",
 )
 speak_data = pd.DataFrame(df, columns=common.speak_columns)
 
-y = speak_data.loc[:, "speak"]
+y = speak_data.loc[:, "y"]
 X = speak_data.loc[:, common.feature_colums_reindex]
 
 x_data = X.loc[:, common.feature_colums_reindex].values

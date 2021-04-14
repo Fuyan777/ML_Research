@@ -180,7 +180,7 @@ feature_colums_reindex = [
 ]
 
 speak_columns = [
-    "speak",
+    "y",
     # gaze_x
     "ave_gaze_x",
     "std_gaze_x",
