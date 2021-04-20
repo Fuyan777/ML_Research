@@ -22,7 +22,7 @@ from sklearn.feature_selection import RFE
 n = 10
 
 # feature_valueのpath設定
-speak = "5w_2s"
+speak = "1w_1s_over"
 
 df = pd.read_csv(
     "/Users/fuyan/Documents/ml-research/csv/a-feature/feature_value/feat_val_%s.csv"
@@ -60,12 +60,22 @@ print(
 )
 # print("precision_score : {}".format(round(precision_score(y, y_pred), 3)))
 print("----------")
+
+
+# 変数重要度
+# print("Feature Importances:")
+# fti = rf.feature_importances_
+
+# importance = pd.DataFrame(
+#     {"var": X_train.columns, "importance": rf.feature_importances_}
+# )
+# print("----importance------")
+# print(importance)
+# print("--------------------")
+
+
+# 変数重要度2
 importances = rf.feature_importances_
-
-# print('Feature Importances:')
-# for i in range(len(feature)):
-#     print('\t{0:20s} : {1:>.6f}'.format(feature[i], fti[i]))
-
 importance = pd.DataFrame(
     {"var": X_train.columns, "importance": rf.feature_importances_}
 )
@@ -79,9 +89,6 @@ for i in range(rank_n):
     params = {"rank": i + 1, "idx": indices[i], "importance": importances[indices[i]]}
     print("{rank}. feature {idx:02d}: {importance}".format(**params))
 
-# print("----importance------")
-# print(importance)
-# print("--------------------")
 
 # estimator = rf.estimators_[0]
 # filename = "/Users/fuyan/Documents/siraisi_lab/B4/40_program/tree.png"
@@ -121,16 +128,16 @@ for i in range(rank_n):
 # 相関行列を作成
 #
 
-corr_matrix = speak_data.corr()
+# corr_matrix = speak_data.corr()
 
-plt.figure()
-sns.heatmap(
-    corr_matrix,
-    square=True,
-    xticklabels=corr_matrix.columns.values,
-    yticklabels=corr_matrix.columns.values,
-)
-plt.savefig("/Users/fuyan/Documents/siraisi_lab/M1/04_program/graph/sns/sns.png")
+# plt.figure()
+# sns.heatmap(
+#     corr_matrix,
+#     square=True,
+#     xticklabels=corr_matrix.columns.values,
+#     yticklabels=corr_matrix.columns.values,
+# )
+# plt.savefig("/Users/fuyan/Documents/siraisi_lab/M1/04_program/graph/sns/sns.png")
 
 
 #

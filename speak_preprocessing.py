@@ -8,14 +8,17 @@ import common
 warnings.simplefilter("ignore")
 user = "a"
 
-# ウィンドウサイズの設定（ 0.5秒先=6, 1秒=12, 2秒=24, 3秒=36, 5秒=60 ）
-window_size = 60
+# ウィンドウサイズの設定w（ 0.5秒先=6, 1秒=12, 2秒=24, 3秒=36, 5秒=60 ）
+window_size = 12
 
 # 予測時間の設定
-speak = "5w_2s"
+speak = "1w_1s_over"
 
-# 予測フレームシフトの設定（ 0.5秒先=6, 1秒=12, 2秒=24, 3秒=36, 5秒=60 ）
-pre_speak_time = 24
+# 予測フレームシフトの設定s（ 0.5秒先=6, 1秒=12, 2秒=24, 3秒=36, 5秒=60 ）
+pre_speak_time = 12
+
+# サンプル数を揃える
+speak_data_count = 1200
 
 # 顔特徴csvのぱpath設定
 face_data_path = "a-20210128.csv"
@@ -151,7 +154,6 @@ def extraction_feature_value():
     non_data = df_window(window_size, df_focus_y_non_dropped)
     print(len(spk_data.index))
     print(len(non_data.index))
-    speak_data_count = 1200
 
     spk_data["y"] = 0
     non_data["y"] = 1
@@ -177,15 +179,39 @@ def extraction_feature_value():
 #
 
 
-def df_window(window_size, df_feature):
-    df_ave = round(df_feature.rolling(window_size, min_periods=1).mean(), 3)
-    df_std = round(df_feature.rolling(window_size, min_periods=1).std(), 3)
-    df_max = round(df_feature.rolling(window_size, min_periods=1).max(), 3)
-    df_min = round(df_feature.rolling(window_size, min_periods=1).min(), 3)
-    df_med = round(df_feature.rolling(window_size, min_periods=1).median(), 3)
-    df_skew = round(df_feature.rolling(window_size, min_periods=1).skew(), 3)
-    df_kurt = round(df_feature.rolling(window_size, min_periods=1).kurt(), 3)
+shift_size = (window_size // 2) - 1
 
+
+def df_window(window_size, df_feature):
+    df_ave = round(
+        df_feature.shift(shift_size).rolling(window_size, min_periods=1).mean(), 3
+    )
+    df_std = round(
+        df_feature.shift(shift_size).rolling(window_size, min_periods=1).std(), 3
+    )
+    df_max = round(
+        df_feature.shift(shift_size).rolling(window_size, min_periods=1).max(), 3
+    )
+    df_min = round(
+        df_feature.shift(shift_size).rolling(window_size, min_periods=1).min(), 3
+    )
+    df_med = round(
+        df_feature.shift(shift_size).rolling(window_size, min_periods=1).median(), 3
+    )
+    df_skew = round(
+        df_feature.shift(shift_size).rolling(window_size, min_periods=1).skew(), 3
+    )
+    df_kurt = round(
+        df_feature.shift(shift_size).rolling(window_size, min_periods=1).kurt(), 3
+    )
+
+    # df_ave = round(df_feature.rolling(window_size, min_periods=1).mean(), 3)
+    # df_std = round(df_feature.rolling(window_size, min_periods=1).std(), 3)
+    # df_max = round(df_feature.rolling(window_size, min_periods=1).max(), 3)
+    # df_min = round(df_feature.rolling(window_size, min_periods=1).min(), 3)
+    # df_med = round(df_feature.rolling(window_size, min_periods=1).median(), 3)
+    # df_skew = round(df_feature.rolling(window_size, min_periods=1).skew(), 3)
+    # df_kurt = round(df_feature.rolling(window_size, min_periods=1).kurt(), 3)
     tmp_all_feature = pd.concat(
         [
             df_ave,
