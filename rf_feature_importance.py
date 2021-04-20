@@ -21,8 +21,12 @@ from sklearn.feature_selection import RFE
 # n-分割
 n = 10
 
+# feature_valueのpath設定
+speak = "5w_2s"
+
 df = pd.read_csv(
-    "/Users/fuyan/Documents/ml-research/csv/a-feature/feature_value/feature_value.csv",
+    "/Users/fuyan/Documents/ml-research/csv/a-feature/feature_value/feat_val_%s.csv"
+    % (speak),
     encoding="utf-8",
 )
 speak_data = pd.DataFrame(df, columns=common.speak_columns)
@@ -135,7 +139,7 @@ plt.savefig("/Users/fuyan/Documents/siraisi_lab/M1/04_program/graph/sns/sns.png"
 
 rfe = RFE(
     RandomForestClassifier(max_depth=7, n_estimators=100, random_state=1000),
-    n_features_to_select=10,
+    n_features_to_select=10,  # 特徴量数の選択
     step=1,
 )
 

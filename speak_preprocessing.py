@@ -7,7 +7,18 @@ import common
 # SettingWithCopyWarningの非表示
 warnings.simplefilter("ignore")
 user = "a"
-speak = "speak-pre"
+
+# ウィンドウサイズの設定（ 0.5秒先=6, 1秒=12, 2秒=24, 3秒=36, 5秒=60 ）
+window_size = 60
+
+# 予測時間の設定
+speak = "5w_2s"
+
+# 予測フレームシフトの設定（ 0.5秒先=6, 1秒=12, 2秒=24, 3秒=36, 5秒=60 ）
+pre_speak_time = 24
+
+# 顔特徴csvのぱpath設定
+face_data_path = "a-20210128.csv"
 
 columns = [
     " gaze_angle_x",
@@ -35,7 +46,9 @@ def main():
         end_speak.append(float(speak[1]))
         speak_label.append(speak[2])
 
-    # label_face(speak_label, start_speak, end_speak)
+    # 会話データ作成
+    label_face(speak_label, start_speak, end_speak)
+    # 特徴量の抽出
     extraction_feature_value()
 
 
@@ -45,7 +58,7 @@ def main():
 
 
 def extraction_speak_data():
-    f = open("elan_output_txt/a-20210128.txt", "r", encoding="UTF-8")
+    f = open("elan_output_txt/a-20210128ver2.0.txt", "r", encoding="UTF-8")
     tmp_data = []
     datalines = f.readlines()
 
@@ -62,7 +75,7 @@ def extraction_speak_data():
 
 
 def label_face(label, start_time, end_time):
-    face_feature = pd.read_csv(file_path.face_feature_path + "a-20210128.csv")
+    face_feature = pd.read_csv(file_path.face_feature_path + face_data_path)
     df_face = pd.DataFrame(
         face_feature,
         columns=[
@@ -100,13 +113,13 @@ def label_face(label, start_time, end_time):
         # 縦に結合
         df_header = pd.concat([df_header, df_feature])
 
-    # （5秒先=60フレーム前）をラベリング
-    df_header["y_pre_label"] = df_header["y"].shift(-60)
+    # 数秒先をラベリング
+    df_header["y_pre_label"] = df_header["y"].shift(-pre_speak_time)
     df_feature = df_header.dropna()
 
     # csvに書き込み
     df_feature.to_csv(
-        file_path.face_feature_csv + "/%s-feature/feature_value_%s.csv" % (user, speak),
+        file_path.face_feature_csv + "/%s-feature/pre-feat_val_%s.csv" % (user, speak),
         mode="w",  # 上書き
         # header=False,
         index=False,
@@ -120,8 +133,9 @@ def label_face(label, start_time, end_time):
 
 def extraction_feature_value():
     df_face = pd.read_csv(
-        file_path.face_feature_csv + "/%s-feature/feature_value_%s.csv" % (user, speak),
+        file_path.face_feature_csv + "/%s-feature/pre-feat_val_%s.csv" % (user, speak),
     )
+
     df_focus_y = df_face[(df_face["y"] == 1)]
 
     # 発話時の特徴量
@@ -133,22 +147,26 @@ def extraction_feature_value():
     df_focus_y_non_dropped = df_focus_y_non.drop(["y", "y_pre_label"], axis=1)
 
     # ウィンドウ処理
-    spk_data = df_window(15, df_focus_y_spk_dropped)
-    non_data = df_window(15, df_focus_y_non_dropped)
+    spk_data = df_window(window_size, df_focus_y_spk_dropped)
+    non_data = df_window(window_size, df_focus_y_non_dropped)
+    print(len(spk_data.index))
+    print(len(non_data.index))
+    speak_data_count = 1200
 
     spk_data["y"] = 0
     non_data["y"] = 1
-    spk_data_delete = spk_data.head(1400)
-    non_data_delete = non_data.head(1400)
+    spk_data_delete = spk_data.head(speak_data_count)
+    non_data_delete = non_data.head(speak_data_count)
 
     # 両ラベル結合
     tmp_all_feature = pd.concat([spk_data_delete, non_data_delete])
 
     print(tmp_all_feature)
-    # csvに書き込み
+
+    # 特徴量をcsvに書き込み
     tmp_all_feature.to_csv(
         file_path.face_feature_csv
-        + "/%s-feature/feature_value/feature_value.csv" % (user),
+        + "/%s-feature/feature_value/feat_val_%s.csv" % (user, speak),
         mode="w",  # 上書き
         index=False,
     )
