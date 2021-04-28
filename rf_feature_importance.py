@@ -16,20 +16,30 @@ import csv
 from matplotlib.colors import ListedColormap
 import matplotlib.pyplot as plt
 import common
+import file_path
 from sklearn.feature_selection import RFE
+
+
+# 被験者の種類
+user = "c"
 
 # n-分割
 n = 10
 
+# 木の深さ
+max_depth = 3
+
 # feature_valueのpath設定
-speak = "1w_1s_over"
+speak = "5w_5s"
 
 df = pd.read_csv(
-    "/Users/fuyan/Documents/ml-research/csv/a-feature/feature_value/feat_val_%s.csv"
-    % (speak),
+    "/Users/fuyan/Documents/ml-research/csv/%s-feature/feature_value/feat_val_%s.csv"
+    % (user, speak),
     encoding="utf-8",
 )
 speak_data = pd.DataFrame(df, columns=common.speak_columns)
+
+print(speak_data.index)
 
 y = speak_data.loc[:, "y"]
 X = speak_data.loc[:, common.feature_colums_reindex]
@@ -39,7 +49,7 @@ y_data = y.values
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
 
-rf = RandomForestClassifier(max_depth=6, n_estimators=100, random_state=1000)
+rf = RandomForestClassifier(max_depth=max_depth, n_estimators=100, random_state=1000)
 rf.fit(X_train, y_train)
 
 y_pred = cross_val_predict(rf, X, y, cv=n)
@@ -63,47 +73,36 @@ print("----------")
 
 
 # 変数重要度
-# print("Feature Importances:")
-# fti = rf.feature_importances_
+print("Feature Importances:")
+fti = rf.feature_importances_
 
-# importance = pd.DataFrame(
-#     {"var": X_train.columns, "importance": rf.feature_importances_}
-# )
-# print("----importance------")
-# print(importance)
-# print("--------------------")
-
-
-# 変数重要度2
-importances = rf.feature_importances_
 importance = pd.DataFrame(
     {"var": X_train.columns, "importance": rf.feature_importances_}
 )
 
-indices = np.argsort(importances)[::-1]
+print("----importance------")
+print(importance.sort_values("importance", ascending=False).head(10))
+print("--------------------")
 
-rank_n = min(X_train.shape[1], 20)
-print("Feature importance ranking (TOP {rank_n})".format(rank_n=rank_n))
 
-for i in range(rank_n):
-    params = {"rank": i + 1, "idx": indices[i], "importance": importances[indices[i]]}
-    print("{rank}. feature {idx:02d}: {importance}".format(**params))
-
+# tree生成
 
 # estimator = rf.estimators_[0]
-# filename = "/Users/fuyan/Documents/siraisi_lab/B4/40_program/tree.png"
+# filename = file_path.path + "ml_graph/tree_%s.png" % (speak)
 # dot_data = tree.export_graphviz(
 #     estimator,
 #     out_file=None,
 #     filled=True,
 #     rounded=True,
 #     feature_names=common.feature_colums_reindex,
+#     class_names=["speak", "non-speak"],
 #     special_characters=True,
 # )
 # graph = pdp.graph_from_dot_data(dot_data)
 # graph.write_png(filename)
 
 
+# バウンダリ
 # ax = plot_decision_regions(x_data, y_data, clf=rf, legend=0)
 # handles, labels = ax.get_legend_handles_labels()
 # ax.legend(handles,
@@ -145,7 +144,7 @@ for i in range(rank_n):
 #
 
 rfe = RFE(
-    RandomForestClassifier(max_depth=7, n_estimators=100, random_state=1000),
+    RandomForestClassifier(max_depth=max_depth, n_estimators=100, random_state=1000),
     n_features_to_select=10,  # 特徴量数の選択
     step=1,
 )
@@ -161,7 +160,7 @@ print(rfeData.columns)
 
 X_train, X_test, y_train, y_test = train_test_split(rfeData, y, test_size=0.2)
 
-rf = RandomForestClassifier(max_depth=10, n_estimators=100, random_state=1000)
+rf = RandomForestClassifier(max_depth=max_depth, n_estimators=100, random_state=1000)
 
 # 混同行列求める
 y_pred = cross_val_predict(rf, X, y, cv=n)

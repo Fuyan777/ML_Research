@@ -6,22 +6,24 @@ import common
 
 # SettingWithCopyWarningの非表示
 warnings.simplefilter("ignore")
-user = "a"
+
+# 被験者の種類
+user = "c"
 
 # ウィンドウサイズの設定w（ 0.5秒先=6, 1秒=12, 2秒=24, 3秒=36, 5秒=60 ）
-window_size = 12
-
-# 予測時間の設定
-speak = "1w_1s_over"
+window_size = 6
 
 # 予測フレームシフトの設定s（ 0.5秒先=6, 1秒=12, 2秒=24, 3秒=36, 5秒=60 ）
-pre_speak_time = 12
+pre_speak_time = 6
+
+# 予測時間の設定
+speak = "0.5w_0.5s"
 
 # サンプル数を揃える
-speak_data_count = 1200
+speak_data_count = 500
 
-# 顔特徴csvのぱpath設定
-face_data_path = "a-20210128.csv"
+# 顔特徴csvのpath設定
+face_data_path = "c-20210128"
 
 columns = [
     " gaze_angle_x",
@@ -61,7 +63,7 @@ def main():
 
 
 def extraction_speak_data():
-    f = open("elan_output_txt/a-20210128ver2.0.txt", "r", encoding="UTF-8")
+    f = open("elan_output_txt/%s.txt" % (face_data_path), "r", encoding="UTF-8")
     tmp_data = []
     datalines = f.readlines()
 
@@ -78,7 +80,7 @@ def extraction_speak_data():
 
 
 def label_face(label, start_time, end_time):
-    face_feature = pd.read_csv(file_path.face_feature_path + face_data_path)
+    face_feature = pd.read_csv(file_path.face_feature_path + face_data_path + ".csv")
     df_face = pd.DataFrame(
         face_feature,
         columns=[
@@ -233,6 +235,21 @@ def df_window(window_size, df_feature):
     )
 
     return df_all_feature_sorted
+
+
+#
+# 時系列データの切り出しグラフの生成
+#
+
+
+def generate_timedata_graph(df_face):
+    plt.figure()
+    df_plot.plot()
+    plt.ylabel("出力値", fontname="AppleGothic")
+    plt.xlabel("秒[sec]", fontname="AppleGothic")
+    plt.ylim([0, 30])
+    plt.savefig(file_path.path + "ml_graph/timedata/data1.png")
+    plt.close("all")
 
 
 if __name__ == "__main__":
