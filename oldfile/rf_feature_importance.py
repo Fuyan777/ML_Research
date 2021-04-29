@@ -21,7 +21,7 @@ from sklearn.feature_selection import RFE
 
 
 # 被験者の種類
-user = "c"
+user = "b"
 
 # n-分割
 n = 10
@@ -30,7 +30,7 @@ n = 10
 max_depth = 3
 
 # feature_valueのpath設定
-speak = "5w_5s"
+speak = "0.5w_5s"
 
 df = pd.read_csv(
     "/Users/fuyan/Documents/ml-research/csv/%s-feature/feature_value/feat_val_%s.csv"
@@ -101,17 +101,21 @@ print("--------------------")
 # graph = pdp.graph_from_dot_data(dot_data)
 # graph.write_png(filename)
 
-
+#
 # バウンダリ
+#
+
 # ax = plot_decision_regions(x_data, y_data, clf=rf, legend=0)
 # handles, labels = ax.get_legend_handles_labels()
-# ax.legend(handles,
-#           ['Speak', 'Non-Speak'],
-#           framealpha=0.3, scatterpoints=1)
+# ax.legend(handles, ["Speak", "Non-Speak"], framealpha=0.3, scatterpoints=1)
 
-# # plot_decision_regions(x_data, y_data, clf=rf, legend=2,
-# #                       filler_feature_values={},
-# #                       )
+# plot_decision_regions(
+#     x_data,
+#     y_data,
+#     clf=rf,
+#     legend=2,
+#     # filler_feature_values={},
+# )
 
 # plt.show()
 
@@ -155,8 +159,8 @@ rfe.fit(X, y)
 # 削減実行後のデータを再構成
 rfeData = pd.DataFrame(rfe.transform(X), columns=X.columns.values[rfe.support_])
 
-print("Feature ranking by RFF:", rfe.ranking_)
-print(rfeData.columns)
+# print("Feature ranking by RFF:", rfe.ranking_)
+# print(rfeData.columns)
 
 X_train, X_test, y_train, y_test = train_test_split(rfeData, y, test_size=0.2)
 

@@ -7,36 +7,29 @@ import common
 # SettingWithCopyWarningの非表示
 warnings.simplefilter("ignore")
 
-# 被験者の種類
-user = "c"
+#
+# パラメータ変更
+#
 
-# ウィンドウサイズの設定w（ 0.5秒先=6, 1秒=12, 2秒=24, 3秒=36, 5秒=60 ）
-window_size = 6
+# 被験者の種類
+user = "b"
+
+# ウィンドウサイズの設定w（0.033 : 0.5秒先=15, 1秒=30, 2秒=60, 3秒=90, 5秒=150 ）
+
+# ウィンドウサイズの設定w（0.083 : 0.5秒先=6, 1秒=12, 2秒=24, 3秒=36, 5秒=60 ）
+window_size = 15
 
 # 予測フレームシフトの設定s（ 0.5秒先=6, 1秒=12, 2秒=24, 3秒=36, 5秒=60 ）
-pre_speak_time = 6
+pre_speak_time = 150
 
 # 予測時間の設定
-speak = "0.5w_0.5s"
+speak = "0.5w_5s"
 
 # サンプル数を揃える
-speak_data_count = 500
+speak_data_count = 1000
 
 # 顔特徴csvのpath設定
-face_data_path = "c-20210128"
-
-columns = [
-    " gaze_angle_x",
-    " gaze_angle_y",
-    " pose_Tx",
-    " pose_Ty",
-    " pose_Tz",
-    " pose_Rx",
-    " pose_Ry",
-    " pose_Rz",
-    "mouth",
-    "y",
-]
+face_data_path = "b-20210128"
 
 
 def main():
@@ -63,7 +56,7 @@ def main():
 
 
 def extraction_speak_data():
-    f = open("elan_output_txt/%s.txt" % (face_data_path), "r", encoding="UTF-8")
+    f = open("elan_output_txt/%sver2.0.txt" % (face_data_path), "r", encoding="UTF-8")
     tmp_data = []
     datalines = f.readlines()
 
@@ -81,8 +74,11 @@ def extraction_speak_data():
 
 def label_face(label, start_time, end_time):
     face_feature = pd.read_csv(file_path.face_feature_path + face_data_path + ".csv")
+
+    # 誤認識は全て削除
+    face_feature_dropped = face_feature[face_feature[" success"] == 1]
     df_face = pd.DataFrame(
-        face_feature,
+        face_feature_dropped,
         columns=[
             " timestamp",
             " gaze_angle_x",
@@ -103,8 +99,8 @@ def label_face(label, start_time, end_time):
     for index in range(len(label)):
         # 各非発話区間ごとの顔特徴データ
         ts_df = df_face[
-            (df_face[" timestamp"] > start_time[index])
-            & (df_face[" timestamp"] < end_time[index])
+            (df_face[" timestamp"] >= start_time[index])
+            & (df_face[" timestamp"] <= end_time[index])
         ]
 
         # 口の開き具合
@@ -254,3 +250,16 @@ def generate_timedata_graph(df_face):
 
 if __name__ == "__main__":
     main()
+
+columns = [
+    " gaze_angle_x",
+    " gaze_angle_y",
+    " pose_Tx",
+    " pose_Ty",
+    " pose_Tz",
+    " pose_Rx",
+    " pose_Ry",
+    " pose_Rz",
+    "mouth",
+    "y",
+]
