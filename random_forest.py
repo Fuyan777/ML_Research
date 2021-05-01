@@ -18,13 +18,14 @@ import matplotlib.pyplot as plt
 import common
 import file_path
 from sklearn.feature_selection import RFE
+from sklearn.preprocessing import StandardScaler
 
 #
 # パラメータ設定
 #
 
 # 被験者の種類
-user = "b"
+user = "c"
 
 # n-分割
 n = 10
@@ -33,7 +34,7 @@ n = 10
 max_depth = 3
 
 # feature_valueのpath設定
-speak = "0.5w_5s"
+speak = "5w_1s"
 
 # 特徴量選択の数
 select_features = 10
@@ -47,6 +48,9 @@ def main():
         encoding="utf-8",
     )
     speak_data = pd.DataFrame(df, columns=common.speak_columns)
+
+    # 標準化処理
+    # speak_data = standard_scaler(df_speak)
 
     # 目的，説明変数の切り分け
     y = speak_data.loc[:, "y"]
@@ -208,6 +212,19 @@ def generate_heatmap():
         yticklabels=corr_matrix.columns.values,
     )
     plt.savefig("/Users/fuyan/Documents/siraisi_lab/M1/04_program/graph/sns/sns.png")
+
+
+#
+# 標準化の処理
+#
+
+
+def standard_scaler(df):
+    stdsc = StandardScaler()
+    df_std = stdsc.fit_transform(df)
+    df_face_std = pd.DataFrame(df_std, columns=common.speak_columns)
+    print(df_face_std)
+    return df_face_std
 
 
 if __name__ == "__main__":

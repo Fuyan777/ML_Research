@@ -1,5 +1,6 @@
 from pprint import pprint
 import pandas as pd
+import matplotlib.pyplot as plt
 import file_path
 import warnings
 import common
@@ -12,7 +13,7 @@ warnings.simplefilter("ignore")
 #
 
 # 被験者の種類
-user = "b"
+user = "c"
 
 # ウィンドウサイズの設定w（0.033 : 0.5秒先=15, 1秒=30, 2秒=60, 3秒=90, 5秒=150 ）
 
@@ -20,16 +21,32 @@ user = "b"
 window_size = 15
 
 # 予測フレームシフトの設定s（ 0.5秒先=6, 1秒=12, 2秒=24, 3秒=36, 5秒=60 ）
-pre_speak_time = 150
+pre_speak_time = 30
 
 # 予測時間の設定
-speak = "0.5w_5s"
+speak = "5w_1s"
 
 # サンプル数を揃える
 speak_data_count = 1000
 
 # 顔特徴csvのpath設定
-face_data_path = "b-20210128"
+face_data_path = "c-20210128"
+
+# overlapの計算
+shift_size = (window_size // 2) - 1
+
+columns = [
+    " gaze_angle_x",
+    " gaze_angle_y",
+    " pose_Tx",
+    " pose_Ty",
+    " pose_Tz",
+    " pose_Rx",
+    " pose_Ry",
+    " pose_Rz",
+    "mouth",
+    "y",
+]
 
 
 def main():
@@ -56,7 +73,7 @@ def main():
 
 
 def extraction_speak_data():
-    f = open("elan_output_txt/%sver2.0.txt" % (face_data_path), "r", encoding="UTF-8")
+    f = open("elan_output_txt/%s.txt" % (face_data_path), "r", encoding="UTF-8")
     tmp_data = []
     datalines = f.readlines()
 
@@ -147,6 +164,10 @@ def extraction_feature_value():
     df_focus_y_non = df_focus_y[(df_focus_y["y_pre_label"] == 1)]
     df_focus_y_non_dropped = df_focus_y_non.drop(["y", "y_pre_label"], axis=1)
 
+    # 　予備動作区間の切り出し（グラフ化）
+    # generate_timedata_graph(df_focus_y_spk_dropped, shift_size, window_size, 0)
+    # generate_timedata_graph(df_focus_y_non_dropped, shift_size, window_size, 1)
+
     # ウィンドウ処理
     spk_data = df_window(window_size, df_focus_y_spk_dropped)
     non_data = df_window(window_size, df_focus_y_non_dropped)
@@ -177,10 +198,8 @@ def extraction_feature_value():
 #
 
 
-shift_size = (window_size // 2) - 1
-
-
 def df_window(window_size, df_feature):
+    # ウインドウ処理
     df_ave = round(
         df_feature.shift(shift_size).rolling(window_size, min_periods=1).mean(), 3
     )
@@ -203,6 +222,7 @@ def df_window(window_size, df_feature):
         df_feature.shift(shift_size).rolling(window_size, min_periods=1).kurt(), 3
     )
 
+    # overlapなし
     # df_ave = round(df_feature.rolling(window_size, min_periods=1).mean(), 3)
     # df_std = round(df_feature.rolling(window_size, min_periods=1).std(), 3)
     # df_max = round(df_feature.rolling(window_size, min_periods=1).max(), 3)
@@ -210,6 +230,8 @@ def df_window(window_size, df_feature):
     # df_med = round(df_feature.rolling(window_size, min_periods=1).median(), 3)
     # df_skew = round(df_feature.rolling(window_size, min_periods=1).skew(), 3)
     # df_kurt = round(df_feature.rolling(window_size, min_periods=1).kurt(), 3)
+
+    # dfの結合
     tmp_all_feature = pd.concat(
         [
             df_ave,
@@ -238,28 +260,55 @@ def df_window(window_size, df_feature):
 #
 
 
-def generate_timedata_graph(df_face):
-    plt.figure()
-    df_plot.plot()
-    plt.ylabel("出力値", fontname="AppleGothic")
-    plt.xlabel("秒[sec]", fontname="AppleGothic")
-    plt.ylim([0, 30])
-    plt.savefig(file_path.path + "ml_graph/timedata/data1.png")
-    plt.close("all")
+def generate_timedata_graph(df_feature, shift_size, window_size, flag):
+    # スライスの位置設定
+    start = 0
+    end = window_size - 1
+
+    for index in range(len(df_feature.index)):
+        if index == 10:
+            break
+
+        plt.figure()
+
+        # ラベル設定
+        plt.ylabel("出力値", fontname="AppleGothic")
+        plt.xlabel("秒[sec]", fontname="AppleGothic")
+
+        # 出力値の範囲
+        plt.ylim([0, 30])
+
+        df_feature_slice = df_feature[start:end]
+
+        # 繰り上げ処理（overlap: 0%）
+        start += window_size
+        end += window_size
+
+        # 繰り上げ処理（overlap: 50%）
+        # start += shift_size
+        # end += shift_size
+
+        df_feature_slice["mouth"].plot()
+        isSpk = "spk" if flag == 0 else "non"
+        plt.savefig(
+            file_path.path + "ml_graph/%s_timedata_w=5/timedata%d.png" % (isSpk, index)
+        )
+
+        plt.close("all")
 
 
 if __name__ == "__main__":
     main()
 
-columns = [
-    " gaze_angle_x",
-    " gaze_angle_y",
-    " pose_Tx",
-    " pose_Ty",
-    " pose_Tz",
-    " pose_Rx",
-    " pose_Ry",
-    " pose_Rz",
-    "mouth",
-    "y",
-]
+    # print("********************************************")
+    # print("********************************************")
+    # print("********************************************")
+
+    # print("---------start / end----------")
+    # print(start)
+    # print(end)
+    # print("--------------------------------")
+
+    # print("------df_feature_slice------")
+    # print(df_feature_slice)
+    # print("----------------------------")
