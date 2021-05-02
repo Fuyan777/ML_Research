@@ -13,24 +13,24 @@ warnings.simplefilter("ignore")
 #
 
 # 被験者の種類
-user = "c"
+user = "a"
 
 # ウィンドウサイズの設定w（0.033 : 0.5秒先=15, 1秒=30, 2秒=60, 3秒=90, 5秒=150 ）
 
 # ウィンドウサイズの設定w（0.083 : 0.5秒先=6, 1秒=12, 2秒=24, 3秒=36, 5秒=60 ）
-window_size = 15
+window_size = 4
 
 # 予測フレームシフトの設定s（ 0.5秒先=6, 1秒=12, 2秒=24, 3秒=36, 5秒=60 ）
-pre_speak_time = 30
+pre_speak_time = 6
 
 # 予測時間の設定
-speak = "5w_1s"
+speak = "0.1w_0.5s"
 
 # サンプル数を揃える
 speak_data_count = 1000
 
 # 顔特徴csvのpath設定
-face_data_path = "c-20210128"
+face_data_path = "a-20210128"
 
 # overlapの計算
 shift_size = (window_size // 2) - 1
@@ -273,12 +273,14 @@ def generate_timedata_graph(df_feature, shift_size, window_size, flag):
 
         # ラベル設定
         plt.ylabel("出力値", fontname="AppleGothic")
-        plt.xlabel("秒[sec]", fontname="AppleGothic")
-
-        # 出力値の範囲
-        plt.ylim([0, 30])
+        plt.xlabel("frame", fontname="AppleGothic")
 
         df_feature_slice = df_feature[start:end]
+        df_select_face = df_feature_slice["mouth"]
+
+        # 出力値の範囲
+        # plt.ylim([df_select_face.min() - 1, df_select_face.max() + 1])
+        plt.ylim([0, 30])
 
         # 繰り上げ処理（overlap: 0%）
         start += window_size
@@ -288,10 +290,11 @@ def generate_timedata_graph(df_feature, shift_size, window_size, flag):
         # start += shift_size
         # end += shift_size
 
-        df_feature_slice["mouth"].plot()
+        df_select_face.plot()
         isSpk = "spk" if flag == 0 else "non"
         plt.savefig(
-            file_path.path + "ml_graph/%s_timedata_w=5/timedata%d.png" % (isSpk, index)
+            file_path.path
+            + "ml_graph/%s-graph/%s_timedata_w=5/timedata%d.png" % (user, isSpk, index)
         )
 
         plt.close("all")

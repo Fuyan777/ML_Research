@@ -25,7 +25,7 @@ from sklearn.preprocessing import StandardScaler
 #
 
 # 被験者の種類
-user = "c"
+user = "a"
 
 # n-分割
 n = 10
@@ -34,7 +34,7 @@ n = 10
 max_depth = 3
 
 # feature_valueのpath設定
-speak = "5w_1s"
+speak = "0.1w_0.5s"
 
 # 特徴量選択の数
 select_features = 10
