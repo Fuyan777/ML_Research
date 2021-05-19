@@ -1,9 +1,11 @@
 from pprint import pprint
+from numpy.core.defchararray import array
 import pandas as pd
 import matplotlib.pyplot as plt
 import file_path
 import warnings
 import common
+import numpy as np
 
 # SettingWithCopyWarningの非表示
 warnings.simplefilter("ignore")
@@ -13,24 +15,24 @@ warnings.simplefilter("ignore")
 #
 
 # 被験者の種類
-user = "a"
+user = "b"
 
 # ウィンドウサイズの設定w（0.033 : 0.5秒先=15, 1秒=30, 2秒=60, 3秒=90, 5秒=150 ）
 
 # ウィンドウサイズの設定w（0.083 : 0.5秒先=6, 1秒=12, 2秒=24, 3秒=36, 5秒=60 ）
-window_size = 4
+window_size = 150
 
 # 予測フレームシフトの設定s（ 0.5秒先=6, 1秒=12, 2秒=24, 3秒=36, 5秒=60 ）
-pre_speak_time = 6
+pre_speak_time = 15
 
 # 予測時間の設定
-speak = "0.1w_0.5s"
+speak = "5w1s"
 
 # サンプル数を揃える
-speak_data_count = 1000
+speak_data_count = 500
 
 # 顔特徴csvのpath設定
-face_data_path = "a-20210128"
+face_data_path = "b-20210128"
 
 # overlapの計算
 shift_size = (window_size // 2) - 1
@@ -64,7 +66,7 @@ def main():
     # 会話データ作成
     label_face(speak_label, start_speak, end_speak)
     # 特徴量の抽出
-    extraction_feature_value()
+    extraction_feature_value_v2()
 
 
 #
@@ -134,6 +136,9 @@ def label_face(label, start_time, end_time):
     # 数秒先をラベリング
     df_header["y_pre_label"] = df_header["y"].shift(-pre_speak_time)
     df_feature = df_header.dropna()
+    print(df_feature.index)
+    print(df_feature[df_feature["y"] == 0].index)
+    print(df_feature[df_feature["y"] == 1].index)  # ここの行数に合わせる必要あり
 
     # csvに書き込み
     df_feature.to_csv(
@@ -145,7 +150,198 @@ def label_face(label, start_time, end_time):
 
 
 #
-# 特徴量の抽出
+# 特徴量の抽出ver2.0（先にウィンドウ処理）
+#
+
+
+def extraction_feature_value_v2():
+    df_face = pd.read_csv(
+        file_path.face_feature_csv + "/%s-feature/pre-feat_val_%s.csv" % (user, speak),
+    )
+
+    spk_data = df_window_v2(window_size, df_face)
+    print(spk_data)
+
+    # 特徴量をcsvに書き込み
+
+    # spk_data.to_csv(
+    #     file_path.face_feature_csv + "/%s-feature/feature_value/test.csv" % (user),
+    #     mode="w",  # 上書き
+    #     index=False,
+    # )
+
+    spk_data.to_csv(
+        file_path.face_feature_csv
+        + "/%s-feature/feature_value/feat_val_%s.csv" % (user, speak),
+        mode="w",  # 上書き
+        index=False,
+    )
+
+
+#
+# ウィンドウ処理ver2.0
+#
+
+feature_list = [
+    " gaze_angle_x",
+    " gaze_angle_y",
+    " pose_Tx",
+    " pose_Ty",
+    " pose_Tz",
+    " pose_Rx",
+    " pose_Ry",
+    " pose_Rz",
+    "mouth",
+]
+
+
+def df_window_v2(window_size, df_feature):
+    print("=========ウィンドウ処理開始==============")
+    # ウインドウ処理
+    df_y = (
+        df_feature["y"]
+        .shift(shift_size)
+        .rolling(window_size, min_periods=1)
+        .apply(judge_y)
+    )
+
+    df_y_pre = (
+        df_feature["y_pre_label"]
+        .shift(shift_size)
+        .rolling(window_size, min_periods=1)
+        .apply(judge_y_pre)
+    )
+
+    print("=========ウィンドウ処理（mean）==============")
+    df_ave = round(
+        df_feature[feature_list]
+        .shift(shift_size)
+        .rolling(window_size, min_periods=1)
+        .apply(judge_speak_mean),
+        3,
+    )
+    print("=========ウィンドウ処理（std）==============")
+    df_std = round(
+        df_feature[feature_list]
+        .shift(shift_size)
+        .rolling(window_size, min_periods=1)
+        .apply(judge_speak_std),
+        3,
+    )
+    print("=========ウィンドウ処理（max）==============")
+    df_max = round(
+        df_feature[feature_list]
+        .shift(shift_size)
+        .rolling(window_size, min_periods=1)
+        .apply(judge_speak_max),
+        3,
+    )
+    print("=========ウィンドウ処理（min）==============")
+    df_min = round(
+        df_feature[feature_list]
+        .shift(shift_size)
+        .rolling(window_size, min_periods=1)
+        .apply(judge_speak_min),
+        3,
+    )
+    print("=========ウィンドウ処理（med）==============")
+    df_med = round(
+        df_feature[feature_list]
+        .shift(shift_size)
+        .rolling(window_size, min_periods=1)
+        .apply(judge_speak_median),
+        3,
+    )
+    print("=========ウィンドウ処理（skew）==============")
+    df_skew = round(
+        df_feature[feature_list]
+        .shift(shift_size)
+        .rolling(window_size, min_periods=1)
+        .apply(judge_speak_skew),
+        3,
+    )
+    print("=========ウィンドウ処理（kurt）==============")
+    df_kurt = round(
+        df_feature[feature_list]
+        .shift(shift_size)
+        .rolling(window_size, min_periods=1)
+        .apply(judge_speak_kurt),
+        3,
+    )
+    print("=========ウィンドウ処理終了==============")
+
+    # dfの結合
+    tmp_all_feature = pd.concat(
+        [
+            df_y,
+            df_y_pre,
+            df_ave,
+            df_std,
+            df_max,
+            df_min,
+            df_med,
+            df_skew,
+            df_kurt,
+        ],
+        axis=1,
+    )
+
+    df_all_feature_drop = tmp_all_feature.dropna()
+    df_all_feature = df_all_feature_drop.set_axis(common.feature_rolling_colums, axis=1)
+    print("----------ウィンドウ処理後---------")
+    print(df_all_feature)
+
+    # カラムソート
+    df_all_feature_sorted = df_all_feature.reindex(
+        columns=common.feature_colums_reindex
+    )
+
+    return df_all_feature_sorted
+
+
+def judge_speak_mean(array_value):
+    return array_value.mean()
+
+
+def judge_speak_std(array_value):
+    return array_value.std()
+
+
+def judge_speak_min(array_value):
+    return array_value.min()
+
+
+def judge_speak_max(array_value):
+    return array_value.max()
+
+
+def judge_speak_median(array_value):
+    return array_value.median()
+
+
+def judge_speak_skew(array_value):
+    return array_value.skew()
+
+
+def judge_speak_kurt(array_value):
+    return array_value.kurt()
+
+
+def judge_y(array_value):
+    if any(array_value.isin([np.nan])):
+        return np.nan
+    elif any(array_value.isin([0.0])):
+        return np.nan
+    else:  # 発話区間も含む場合、else部分は消す
+        return array_value.iloc[-1]  # 配列の最後の要素を返す
+
+
+def judge_y_pre(array_value):
+    return array_value.iloc[-1]
+
+
+#
+# 特徴量の抽出ver1.0（先に発話区間の除去）
 #
 
 
@@ -154,6 +350,7 @@ def extraction_feature_value():
         file_path.face_feature_csv + "/%s-feature/pre-feat_val_%s.csv" % (user, speak),
     )
 
+    # 非発話区間のデータのみ抽出
     df_focus_y = df_face[(df_face["y"] == 1)]
 
     # 発話時の特徴量
@@ -163,10 +360,6 @@ def extraction_feature_value():
     # 非発話時の特徴量
     df_focus_y_non = df_focus_y[(df_focus_y["y_pre_label"] == 1)]
     df_focus_y_non_dropped = df_focus_y_non.drop(["y", "y_pre_label"], axis=1)
-
-    # 　予備動作区間の切り出し（グラフ化）
-    # generate_timedata_graph(df_focus_y_spk_dropped, shift_size, window_size, 0)
-    # generate_timedata_graph(df_focus_y_non_dropped, shift_size, window_size, 1)
 
     # ウィンドウ処理
     spk_data = df_window(window_size, df_focus_y_spk_dropped)
@@ -221,15 +414,6 @@ def df_window(window_size, df_feature):
     df_kurt = round(
         df_feature.shift(shift_size).rolling(window_size, min_periods=1).kurt(), 3
     )
-
-    # overlapなし
-    # df_ave = round(df_feature.rolling(window_size, min_periods=1).mean(), 3)
-    # df_std = round(df_feature.rolling(window_size, min_periods=1).std(), 3)
-    # df_max = round(df_feature.rolling(window_size, min_periods=1).max(), 3)
-    # df_min = round(df_feature.rolling(window_size, min_periods=1).min(), 3)
-    # df_med = round(df_feature.rolling(window_size, min_periods=1).median(), 3)
-    # df_skew = round(df_feature.rolling(window_size, min_periods=1).skew(), 3)
-    # df_kurt = round(df_feature.rolling(window_size, min_periods=1).kurt(), 3)
 
     # dfの結合
     tmp_all_feature = pd.concat(

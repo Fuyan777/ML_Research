@@ -25,7 +25,7 @@ from sklearn.preprocessing import StandardScaler
 #
 
 # 被験者の種類
-user = "a"
+user = "b"
 
 # n-分割
 n = 10
@@ -34,7 +34,7 @@ n = 10
 max_depth = 3
 
 # feature_valueのpath設定
-speak = "0.1w_0.5s"
+speak = "5w_1s"
 
 # 特徴量選択の数
 select_features = 10
@@ -49,15 +49,31 @@ def main():
     )
     speak_data = pd.DataFrame(df, columns=common.speak_columns)
 
+    # 各クラスのデータ数 確認
+    print("y_pre_label: 0")
+    print(len(speak_data[speak_data["y_pre_label"] == 0].index))
+    print("y_pre_label: 1")
+    print(len(speak_data[speak_data["y_pre_label"] == 1].index))
+
+    # 各クラスのデータ
+    speak_0_lim = speak_data[speak_data["y_pre_label"] == 0].head(800)
+    speak_1_lim = speak_data[speak_data["y_pre_label"] == 1].head(800)
+
+    # print(speak_0_lim)
+    # print(speak_1_lim)
+
+    speak_feature_value = pd.concat([speak_0_lim, speak_1_lim])
+    print(speak_feature_value)
+
     # 標準化処理
     # speak_data = standard_scaler(df_speak)
 
     # 目的，説明変数の切り分け
-    y = speak_data.loc[:, "y"]
-    X = speak_data.loc[:, common.feature_colums_reindex]
+    y = speak_feature_value.loc[:, "y_pre_label"]
+    X = speak_feature_value.loc[:, common.feature_colums]
 
     # 決定境界で使用するデータ
-    x_data = X.loc[:, common.feature_colums_reindex].values
+    x_data = X.loc[:, common.feature_colums].values
     y_data = y.values
 
     # 学習データ分割（8:2）
