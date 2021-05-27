@@ -4,6 +4,7 @@ feature_rolling_colums = [
     # ave
     "ave_gaze_x",
     "ave_gaze_y",
+    "ave_gaze_hypo",
     "ave_pose_Tx",
     "ave_pose_Ty",
     "ave_pose_Tz",
@@ -14,6 +15,7 @@ feature_rolling_colums = [
     # std
     "std_gaze_x",
     "std_gaze_y",
+    "std_gaze_hypo",
     "std_pose_Tx",
     "std_pose_Ty",
     "std_pose_Tz",
@@ -24,6 +26,7 @@ feature_rolling_colums = [
     # max
     "max_gaze_x",
     "max_gaze_y",
+    "max_gaze_hypo",
     "max_pose_Tx",
     "max_pose_Ty",
     "max_pose_Tz",
@@ -34,6 +37,7 @@ feature_rolling_colums = [
     # min
     "min_gaze_x",
     "min_gaze_y",
+    "min_gaze_hypo",
     "min_pose_Tx",
     "min_pose_Ty",
     "min_pose_Tz",
@@ -44,6 +48,7 @@ feature_rolling_colums = [
     # med
     "med_gaze_x",
     "med_gaze_y",
+    "med_gaze_hypo",
     "med_pose_Tx",
     "med_pose_Ty",
     "med_pose_Tz",
@@ -54,6 +59,7 @@ feature_rolling_colums = [
     # skew
     "skew_gaze_x",
     "skew_gaze_y",
+    "skew_gaze_hypo",
     "skew_pose_Tx",
     "skew_pose_Ty",
     "skew_pose_Tz",
@@ -64,6 +70,7 @@ feature_rolling_colums = [
     # skew
     "kurt_gaze_x",
     "kurt_gaze_y",
+    "kurt_gaze_hypo",
     "kurt_pose_Tx",
     "kurt_pose_Ty",
     "kurt_pose_Tz",
@@ -75,7 +82,6 @@ feature_rolling_colums = [
 
 # 学習用カラム
 feature_colums_reindex = [
-    "y",
     "y_pre_label",
     # gaze_x
     "ave_gaze_x",
@@ -93,6 +99,14 @@ feature_colums_reindex = [
     "med_gaze_y",
     "skew_gaze_y",
     "kurt_gaze_y",
+    # gaze_hypo
+    "ave_gaze_hypo",
+    "std_gaze_hypo",
+    "max_gaze_hypo",
+    "min_gaze_hypo",
+    "med_gaze_hypo",
+    "skew_gaze_hypo",
+    "kurt_gaze_hypo",
     # poze_Tx
     "ave_pose_Tx",
     "std_pose_Tx",
@@ -168,6 +182,14 @@ feature_colums = [
     "med_gaze_y",
     "skew_gaze_y",
     "kurt_gaze_y",
+    # gaze_hypo
+    "ave_gaze_hypo",
+    "std_gaze_hypo",
+    "max_gaze_hypo",
+    "min_gaze_hypo",
+    "med_gaze_hypo",
+    "skew_gaze_hypo",
+    "kurt_gaze_hypo",
     # poze_Tx
     "ave_pose_Tx",
     "std_pose_Tx",
@@ -246,6 +268,14 @@ speak_columns = [
     "med_gaze_y",
     "skew_gaze_y",
     "kurt_gaze_y",
+    # gaze_hypo
+    "ave_gaze_hypo",
+    "std_gaze_hypo",
+    "max_gaze_hypo",
+    "min_gaze_hypo",
+    "med_gaze_hypo",
+    "skew_gaze_hypo",
+    "kurt_gaze_hypo",
     # poze_Tx
     "ave_pose_Tx",
     "std_pose_Tx",

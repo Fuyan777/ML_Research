@@ -1,4 +1,5 @@
 from pprint import pprint
+import numpy
 from numpy.core.defchararray import array
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -15,24 +16,24 @@ warnings.simplefilter("ignore")
 #
 
 # 被験者の種類
-user = "b"
+user = "a"
 
 # ウィンドウサイズの設定w（0.033 : 0.5秒先=15, 1秒=30, 2秒=60, 3秒=90, 5秒=150 ）
 
 # ウィンドウサイズの設定w（0.083 : 0.5秒先=6, 1秒=12, 2秒=24, 3秒=36, 5秒=60 ）
-window_size = 150
+window_size = 12
 
 # 予測フレームシフトの設定s（ 0.5秒先=6, 1秒=12, 2秒=24, 3秒=36, 5秒=60 ）
-pre_speak_time = 15
+pre_speak_time = 12
 
 # 予測時間の設定
-speak = "5w1s"
+speak = "1w_1s"
 
 # サンプル数を揃える
 speak_data_count = 500
 
 # 顔特徴csvのpath設定
-face_data_path = "b-20210128"
+face_data_path = "a-20210128"
 
 # overlapの計算
 shift_size = (window_size // 2) - 1
@@ -63,10 +64,34 @@ def main():
         end_speak.append(float(speak[1]))
         speak_label.append(speak[2])
 
+    research_speak_data(start_speak, end_speak, speak_label)
+
     # 会話データ作成
     label_face(speak_label, start_speak, end_speak)
     # 特徴量の抽出
     extraction_feature_value_v2()
+
+
+#
+# 発話特性の抽出
+#
+
+
+def research_speak_data(start_speak, end_speak, speak_label):
+    spk_cnt = 0
+    speak_interval = []
+
+    for index in range(len(speak_label)):
+        if speak_label[index] == "x":
+            spk_cnt += 1
+            tmp_speak_interval = end_speak[index] - start_speak[index]
+            speak_interval.append(tmp_speak_interval)
+
+    speak_interval_average = sum(speak_interval) / len(speak_interval)
+
+    print("発話回数: %s" % (spk_cnt))
+    print("平均発話時間: %s" % (round(speak_interval_average, 3)))
+    print("発話最大時間: %s" % (max(speak_interval)))
 
 
 #
@@ -75,7 +100,8 @@ def main():
 
 
 def extraction_speak_data():
-    f = open("elan_output_txt/%s.txt" % (face_data_path), "r", encoding="UTF-8")
+    f = open("elan_output_txt/%s
+    .txt" % (face_data_path), "r", encoding="UTF-8")
     tmp_data = []
     datalines = f.readlines()
 
@@ -124,6 +150,18 @@ def label_face(label, start_time, end_time):
 
         # 口の開き具合
         ts_df["mouth"] = ts_df[" y_66"].copy() - ts_df[" y_62"].copy()
+
+        # 視線斜め
+        ts_df.loc[
+            (ts_df[" gaze_angle_x"] < 0.0) | (ts_df[" gaze_angle_y"] < 0.0),
+            "gaze_angle_hypo",
+        ] = -(np.sqrt(ts_df[" gaze_angle_x"] ** 2 + ts_df[" gaze_angle_y"] ** 2))
+
+        ts_df.loc[
+            ~((ts_df[" gaze_angle_x"] < 0.0) | (ts_df[" gaze_angle_y"] < 0.0)),
+            "gaze_angle_hypo",
+        ] = np.sqrt(ts_df[" gaze_angle_x"] ** 2 + ts_df[" gaze_angle_y"] ** 2)
+
         ts_df["y"] = 0 if label[index] == "x" else 1
         ts_df_feature = ts_df.drop([" timestamp", " y_62", " y_66"], axis=1)
 
@@ -164,15 +202,9 @@ def extraction_feature_value_v2():
 
     # 特徴量をcsvに書き込み
 
-    # spk_data.to_csv(
-    #     file_path.face_feature_csv + "/%s-feature/feature_value/test.csv" % (user),
-    #     mode="w",  # 上書き
-    #     index=False,
-    # )
-
     spk_data.to_csv(
         file_path.face_feature_csv
-        + "/%s-feature/feature_value/feat_val_%s.csv" % (user, speak),
+        + "/%s-feature/feature_value/feat_val_%s_hypo.csv" % (user, speak),
         mode="w",  # 上書き
         index=False,
     )
@@ -185,6 +217,7 @@ def extraction_feature_value_v2():
 feature_list = [
     " gaze_angle_x",
     " gaze_angle_y",
+    "gaze_angle_hypo",
     " pose_Tx",
     " pose_Ty",
     " pose_Tz",
@@ -286,13 +319,20 @@ def df_window_v2(window_size, df_feature):
         axis=1,
     )
 
-    df_all_feature_drop = tmp_all_feature.dropna()
-    df_all_feature = df_all_feature_drop.set_axis(common.feature_rolling_colums, axis=1)
+    df_all_feature = tmp_all_feature.set_axis(common.feature_rolling_colums, axis=1)
+
+    df_all_feature.to_csv(
+        file_path.face_feature_csv + "/%s-feature/spilt.csv" % (user),
+        mode="w",  # 上書き
+        index=False,
+    )
+
+    df_all_feature_drop = df_all_feature.dropna()
     print("----------ウィンドウ処理後---------")
-    print(df_all_feature)
+    print(df_all_feature_drop)
 
     # カラムソート
-    df_all_feature_sorted = df_all_feature.reindex(
+    df_all_feature_sorted = df_all_feature_drop.reindex(
         columns=common.feature_colums_reindex
     )
 
@@ -338,6 +378,15 @@ def judge_y(array_value):
 
 def judge_y_pre(array_value):
     return array_value.iloc[-1]
+
+
+#
+# ウィンドウ分割処理
+#
+
+
+def df_window_split(window_size, df_feature):
+    print(df_feature[df_feature["y"] == 1])
 
 
 #

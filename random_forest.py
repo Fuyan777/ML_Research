@@ -25,7 +25,7 @@ from sklearn.preprocessing import StandardScaler
 #
 
 # 被験者の種類
-user = "b"
+user = "a"
 
 # n-分割
 n = 10
@@ -34,7 +34,7 @@ n = 10
 max_depth = 3
 
 # feature_valueのpath設定
-speak = "5w_1s"
+speak = "1w_1s"
 
 # 特徴量選択の数
 select_features = 10
@@ -43,7 +43,7 @@ select_features = 10
 def main():
     # データ読み込み
     df = pd.read_csv(
-        "/Users/fuyan/Documents/ml-research/csv/%s-feature/feature_value/feat_val_%s.csv"
+        "/Users/fuyan/Documents/ml-research/csv/%s-feature/feature_value/feat_val_%s_hypo.csv"
         % (user, speak),
         encoding="utf-8",
     )
@@ -122,7 +122,6 @@ def predict_random_forest(X_train, y_train, X, y):
     print("----------")
 
     # 変数重要度
-
     print("Feature Importances:")
     fti = rf.feature_importances_
 
