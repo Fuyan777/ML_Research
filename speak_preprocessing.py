@@ -16,7 +16,7 @@ warnings.simplefilter("ignore")
 #
 
 # 被験者の種類
-user = "a"
+user = "c"
 
 # ウィンドウサイズの設定w（0.033 : 0.5秒先=15, 1秒=30, 2秒=60, 3秒=90, 5秒=150 ）
 
@@ -30,10 +30,10 @@ pre_speak_time = 12
 speak = "1w_1s"
 
 # サンプル数を揃える
-speak_data_count = 500
+speak_data_count = 800
 
 # 顔特徴csvのpath設定
-face_data_path = "a-20210128"
+face_data_path = "c-20210128"
 
 # overlapの計算
 shift_size = (window_size // 2) - 1
@@ -69,7 +69,8 @@ def main():
     # 会話データ作成
     label_face(speak_label, start_speak, end_speak)
     # 特徴量の抽出
-    extraction_feature_value_v2()
+    # extraction_feature_value_v2()
+    extraction_feature_value()
 
 
 #
@@ -100,8 +101,7 @@ def research_speak_data(start_speak, end_speak, speak_label):
 
 
 def extraction_speak_data():
-    f = open("elan_output_txt/%s
-    .txt" % (face_data_path), "r", encoding="UTF-8")
+    f = open("elan_output_txt/%s.txt" % (face_data_path), "r", encoding="UTF-8")
     tmp_data = []
     datalines = f.readlines()
 
@@ -183,29 +183,6 @@ def label_face(label, start_time, end_time):
         file_path.face_feature_csv + "/%s-feature/pre-feat_val_%s.csv" % (user, speak),
         mode="w",  # 上書き
         # header=False,
-        index=False,
-    )
-
-
-#
-# 特徴量の抽出ver2.0（先にウィンドウ処理）
-#
-
-
-def extraction_feature_value_v2():
-    df_face = pd.read_csv(
-        file_path.face_feature_csv + "/%s-feature/pre-feat_val_%s.csv" % (user, speak),
-    )
-
-    spk_data = df_window_v2(window_size, df_face)
-    print(spk_data)
-
-    # 特徴量をcsvに書き込み
-
-    spk_data.to_csv(
-        file_path.face_feature_csv
-        + "/%s-feature/feature_value/feat_val_%s_hypo.csv" % (user, speak),
-        mode="w",  # 上書き
         index=False,
     )
 
@@ -381,16 +358,7 @@ def judge_y_pre(array_value):
 
 
 #
-# ウィンドウ分割処理
-#
-
-
-def df_window_split(window_size, df_feature):
-    print(df_feature[df_feature["y"] == 1])
-
-
-#
-# 特徴量の抽出ver1.0（先に発話区間の除去）
+# 特徴量の抽出ver1.0
 #
 
 
@@ -399,15 +367,12 @@ def extraction_feature_value():
         file_path.face_feature_csv + "/%s-feature/pre-feat_val_%s.csv" % (user, speak),
     )
 
-    # 非発話区間のデータのみ抽出
-    df_focus_y = df_face[(df_face["y"] == 1)]
-
     # 発話時の特徴量
-    df_focus_y_spk = df_focus_y[(df_focus_y["y_pre_label"] == 0)]
+    df_focus_y_spk = df_face[(df_face["y_pre_label"] == 0)]
     df_focus_y_spk_dropped = df_focus_y_spk.drop(["y", "y_pre_label"], axis=1)
 
     # 非発話時の特徴量
-    df_focus_y_non = df_focus_y[(df_focus_y["y_pre_label"] == 1)]
+    df_focus_y_non = df_face[(df_face["y_pre_label"] == 1)]
     df_focus_y_non_dropped = df_focus_y_non.drop(["y", "y_pre_label"], axis=1)
 
     # ウィンドウ処理
@@ -416,8 +381,8 @@ def extraction_feature_value():
     print(len(spk_data.index))
     print(len(non_data.index))
 
-    spk_data["y"] = 0
-    non_data["y"] = 1
+    spk_data["y_pre_label"] = 0
+    non_data["y_pre_label"] = 1
     spk_data_delete = spk_data.head(speak_data_count)
     non_data_delete = non_data.head(speak_data_count)
 
@@ -429,7 +394,7 @@ def extraction_feature_value():
     # 特徴量をcsvに書き込み
     tmp_all_feature.to_csv(
         file_path.face_feature_csv
-        + "/%s-feature/feature_value/feat_val_%s.csv" % (user, speak),
+        + "/%s-feature-speak-include/feature_value/feat_val_%s.csv" % (user, speak),
         mode="w",  # 上書き
         index=False,
     )
@@ -482,7 +447,7 @@ def df_window(window_size, df_feature):
 
     # カラムソート
     df_all_feature_sorted = df_all_feature.reindex(
-        columns=common.feature_colums_reindex
+        columns=common.feature_rolling_colums
     )
 
     return df_all_feature_sorted

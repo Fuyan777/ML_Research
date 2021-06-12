@@ -25,7 +25,7 @@ from sklearn.preprocessing import StandardScaler
 #
 
 # 被験者の種類
-user = "a"
+user = "c"
 
 # n-分割
 n = 10
@@ -43,7 +43,7 @@ select_features = 10
 def main():
     # データ読み込み
     df = pd.read_csv(
-        "/Users/fuyan/Documents/ml-research/csv/%s-feature/feature_value/feat_val_%s_hypo.csv"
+        "/Users/fuyan/Documents/ml-research/csv/%s-feature-speak-include/feature_value/feat_val_%s.csv"
         % (user, speak),
         encoding="utf-8",
     )
@@ -81,17 +81,21 @@ def main():
         X, y, test_size=0.2, random_state=0
     )
 
+    rf = RandomForestClassifier(
+        max_depth=max_depth, n_estimators=100, random_state=1000
+    )
+
     # ランダムフォレストで学習
-    predict_random_forest(X_train, y_train, X, y)
+    predict_random_forest(rf, X_train, y_train, X, y)
 
     # 特徴量選択
-    feature_importance(X_train, y_train, X, y)
+    feature_importance(X, y)
 
     # 決定境界
     # generate_decision_regions
 
     # 決定木
-    # generate_tree()
+    generate_tree(rf)
 
     # 相関行列
     # generate_heatmap()
@@ -102,10 +106,7 @@ def main():
 #
 
 
-def predict_random_forest(X_train, y_train, X, y):
-    rf = RandomForestClassifier(
-        max_depth=max_depth, n_estimators=100, random_state=1000
-    )
+def predict_random_forest(rf, X_train, y_train, X, y):
     rf.fit(X_train, y_train)
 
     y_pred = cross_val_predict(rf, X, y, cv=n)
@@ -123,7 +124,6 @@ def predict_random_forest(X_train, y_train, X, y):
 
     # 変数重要度
     print("Feature Importances:")
-    fti = rf.feature_importances_
 
     importance = pd.DataFrame(
         {"var": X_train.columns, "importance": rf.feature_importances_}
@@ -139,7 +139,7 @@ def predict_random_forest(X_train, y_train, X, y):
 #
 
 
-def feature_importance(X_train, y_train, X, y):
+def feature_importance(X, y):
     rfe = RFE(
         RandomForestClassifier(
             max_depth=max_depth, n_estimators=100, random_state=1000
@@ -175,15 +175,15 @@ def feature_importance(X_train, y_train, X, y):
 #
 
 
-def generate_tree():
-    estimator = rf.estimators_[0]
+def generate_tree(rf):
+    estimator = rf.estimators_[3]
     filename = file_path.path + "ml_graph/tree_%s.png" % (speak)
     dot_data = tree.export_graphviz(
         estimator,
         out_file=None,
         filled=True,
         rounded=True,
-        feature_names=common.feature_colums_reindex,
+        feature_names=common.feature_tree,
         class_names=["speak", "non-speak"],
         special_characters=True,
     )
