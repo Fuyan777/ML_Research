@@ -16,24 +16,23 @@ warnings.simplefilter("ignore")
 #
 
 # 被験者の種類
-user = "c"
+user = "a"
 
 # ウィンドウサイズの設定w（0.033 : 0.5秒先=15, 1秒=30, 2秒=60, 3秒=90, 5秒=150 ）
 
 # ウィンドウサイズの設定w（0.083 : 0.5秒先=6, 1秒=12, 2秒=24, 3秒=36, 5秒=60 ）
-window_size = 12
-
+window_size = 24
 # 予測フレームシフトの設定s（ 0.5秒先=6, 1秒=12, 2秒=24, 3秒=36, 5秒=60 ）
-pre_speak_time = 12
+pre_speak_time = 24
 
 # 予測時間の設定
-speak = "1w_1s"
+speak = "2w_1s"
 
 # サンプル数を揃える
 speak_data_count = 800
 
 # 顔特徴csvのpath設定
-face_data_path = "c-20210128"
+face_data_path = "a-20210128"
 
 # overlapの計算
 shift_size = (window_size // 2) - 1
@@ -69,8 +68,8 @@ def main():
     # 会話データ作成
     label_face(speak_label, start_speak, end_speak)
     # 特徴量の抽出
-    # extraction_feature_value_v2()
-    extraction_feature_value()
+    extraction_feature_value_v2()
+    # extraction_feature_value()
 
 
 #
@@ -188,6 +187,29 @@ def label_face(label, start_time, end_time):
 
 
 #
+# 特徴量の抽出ver2.0（先にウィンドウ処理）
+#
+
+
+def extraction_feature_value_v2():
+    df_face = pd.read_csv(
+        file_path.face_feature_csv + "/%s-feature/pre-feat_val_%s.csv" % (user, speak),
+    )
+
+    spk_data = df_window_v2(window_size, df_face)
+    print(spk_data)
+
+    # 特徴量をcsvに書き込み
+
+    spk_data.to_csv(
+        file_path.face_feature_csv
+        + "/%s-feature/feature_value/feat_val_%s_hypo.csv" % (user, speak),
+        mode="w",  # 上書き
+        index=False,
+    )
+
+
+#
 # ウィンドウ処理ver2.0
 #
 
@@ -283,7 +305,6 @@ def df_window_v2(window_size, df_feature):
     # dfの結合
     tmp_all_feature = pd.concat(
         [
-            df_y,
             df_y_pre,
             df_ave,
             df_std,

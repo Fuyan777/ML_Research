@@ -1,4 +1,5 @@
 feature_rolling_colums = [
+    "y_pre_label"
     # ave
     "ave_gaze_x",
     "ave_gaze_y",
@@ -80,6 +81,7 @@ feature_rolling_colums = [
 
 # 学習用カラム
 feature_colums_reindex = [
+    "y",
     "y_pre_label",
     # gaze_x
     "ave_gaze_x",
