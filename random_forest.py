@@ -12,8 +12,6 @@ from sklearn.model_selection import cross_val_predict
 from sklearn.model_selection import cross_val_score
 from sklearn.ensemble import RandomForestClassifier
 from mlxtend.plotting import plot_decision_regions
-import csv
-from matplotlib.colors import ListedColormap
 import matplotlib.pyplot as plt
 import common
 import file_path

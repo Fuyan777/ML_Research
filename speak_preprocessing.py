@@ -21,12 +21,12 @@ user = "a"
 # ウィンドウサイズの設定w（0.033 : 0.5秒先=15, 1秒=30, 2秒=60, 3秒=90, 5秒=150 ）
 
 # ウィンドウサイズの設定w（0.083 : 0.5秒先=6, 1秒=12, 2秒=24, 3秒=36, 5秒=60 ）
-window_size = 24
+window_size = 60
 # 予測フレームシフトの設定s（ 0.5秒先=6, 1秒=12, 2秒=24, 3秒=36, 5秒=60 ）
-pre_speak_time = 24
+pre_speak_time = 12
 
 # 予測時間の設定
-speak = "2w_1s"
+speak = "5w_1s"
 
 # サンプル数を揃える
 speak_data_count = 800
@@ -69,6 +69,7 @@ def main():
     label_face(speak_label, start_speak, end_speak)
     # 特徴量の抽出
     extraction_feature_value_v2()
+    # 全会話データの特徴量抽出
     # extraction_feature_value()
 
 
@@ -302,9 +303,11 @@ def df_window_v2(window_size, df_feature):
     )
     print("=========ウィンドウ処理終了==============")
 
+    print(df_y)
     # dfの結合
     tmp_all_feature = pd.concat(
         [
+            df_y,
             df_y_pre,
             df_ave,
             df_std,

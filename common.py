@@ -1,4 +1,5 @@
 feature_rolling_colums = [
+    "y",
     "y_pre_label"
     # ave
     "ave_gaze_x",
