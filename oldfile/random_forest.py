@@ -23,7 +23,7 @@ from sklearn.preprocessing import StandardScaler
 #
 
 # 被験者の種類
-user = "c"
+user = "a"
 
 # n-分割
 n = 10
@@ -84,19 +84,19 @@ def main():
     )
 
     # ランダムフォレストで学習
-    predict_random_forest(rf, X_train, y_train, X, y)
+    # predict_random_forest(rf, X_train, y_train, X, y)
 
     # 特徴量選択
-    feature_importance(X, y)
+    # feature_importance(X, y)
 
     # 決定境界
     # generate_decision_regions
 
     # 決定木
-    generate_tree(rf)
+    # generate_tree(rf)
 
     # 相関行列
-    # generate_heatmap()
+    generate_heatmap(speak_data)
 
 
 #
@@ -214,7 +214,7 @@ def generate_decision_regions():
 #
 
 
-def generate_heatmap():
+def generate_heatmap(speak_data):
     corr_matrix = speak_data.corr()
 
     plt.figure()
