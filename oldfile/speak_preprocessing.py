@@ -67,8 +67,10 @@ def main():
 
     # 会話データ作成
     label_face(speak_label, start_speak, end_speak)
+
     # 特徴量の抽出
     extraction_feature_value_v2()
+
     # 全会話データの特徴量抽出
     # extraction_feature_value()
 
@@ -96,12 +98,13 @@ def research_speak_data(start_speak, end_speak, speak_label):
 
 
 #
-# 発話・非発話の時間を抽出
+# c
 #
 
 
 def extraction_speak_data():
-    f = open("elan_output_txt/%s.txt" % (face_data_path), "r", encoding="UTF-8")
+    f = open("elan_output_txt/%s.txt" %
+             (face_data_path), "r", encoding="UTF-8")
     tmp_data = []
     datalines = f.readlines()
 
@@ -118,7 +121,8 @@ def extraction_speak_data():
 
 
 def label_face(label, start_time, end_time):
-    face_feature = pd.read_csv(file_path.face_feature_path + face_data_path + ".csv")
+    face_feature = pd.read_csv(
+        file_path.face_feature_path + face_data_path + ".csv")
 
     # 誤認識は全て削除
     face_feature_dropped = face_feature[face_feature[" success"] == 1]
@@ -180,7 +184,8 @@ def label_face(label, start_time, end_time):
 
     # csvに書き込み
     df_feature.to_csv(
-        file_path.face_feature_csv + "/%s-feature/pre-feat_val_%s.csv" % (user, speak),
+        file_path.face_feature_csv +
+        "/%s-feature/pre-feat_val_%s.csv" % (user, speak),
         mode="w",  # 上書き
         # header=False,
         index=False,
@@ -194,7 +199,8 @@ def label_face(label, start_time, end_time):
 
 def extraction_feature_value_v2():
     df_face = pd.read_csv(
-        file_path.face_feature_csv + "/%s-feature/pre-feat_val_%s.csv" % (user, speak),
+        file_path.face_feature_csv +
+        "/%s-feature/pre-feat_val_%s.csv" % (user, speak),
     )
 
     spk_data = df_window_v2(window_size, df_face)
@@ -320,7 +326,8 @@ def df_window_v2(window_size, df_feature):
         axis=1,
     )
 
-    df_all_feature = tmp_all_feature.set_axis(common.feature_rolling_colums, axis=1)
+    df_all_feature = tmp_all_feature.set_axis(
+        common.feature_rolling_colums, axis=1)
 
     df_all_feature.to_csv(
         file_path.face_feature_csv + "/%s-feature/spilt.csv" % (user),
@@ -388,7 +395,8 @@ def judge_y_pre(array_value):
 
 def extraction_feature_value():
     df_face = pd.read_csv(
-        file_path.face_feature_csv + "/%s-feature/pre-feat_val_%s.csv" % (user, speak),
+        file_path.face_feature_csv +
+        "/%s-feature/pre-feat_val_%s.csv" % (user, speak),
     )
 
     # 発話時の特徴量
@@ -432,25 +440,32 @@ def extraction_feature_value():
 def df_window(window_size, df_feature):
     # ウインドウ処理
     df_ave = round(
-        df_feature.shift(shift_size).rolling(window_size, min_periods=1).mean(), 3
+        df_feature.shift(shift_size).rolling(
+            window_size, min_periods=1).mean(), 3
     )
     df_std = round(
-        df_feature.shift(shift_size).rolling(window_size, min_periods=1).std(), 3
+        df_feature.shift(shift_size).rolling(
+            window_size, min_periods=1).std(), 3
     )
     df_max = round(
-        df_feature.shift(shift_size).rolling(window_size, min_periods=1).max(), 3
+        df_feature.shift(shift_size).rolling(
+            window_size, min_periods=1).max(), 3
     )
     df_min = round(
-        df_feature.shift(shift_size).rolling(window_size, min_periods=1).min(), 3
+        df_feature.shift(shift_size).rolling(
+            window_size, min_periods=1).min(), 3
     )
     df_med = round(
-        df_feature.shift(shift_size).rolling(window_size, min_periods=1).median(), 3
+        df_feature.shift(shift_size).rolling(
+            window_size, min_periods=1).median(), 3
     )
     df_skew = round(
-        df_feature.shift(shift_size).rolling(window_size, min_periods=1).skew(), 3
+        df_feature.shift(shift_size).rolling(
+            window_size, min_periods=1).skew(), 3
     )
     df_kurt = round(
-        df_feature.shift(shift_size).rolling(window_size, min_periods=1).kurt(), 3
+        df_feature.shift(shift_size).rolling(
+            window_size, min_periods=1).kurt(), 3
     )
 
     # dfの結合
@@ -467,7 +482,8 @@ def df_window(window_size, df_feature):
         axis=1,
     )
     df_all_feature_drop = tmp_all_feature.dropna()
-    df_all_feature = df_all_feature_drop.set_axis(common.feature_rolling_colums, axis=1)
+    df_all_feature = df_all_feature_drop.set_axis(
+        common.feature_rolling_colums, axis=1)
 
     # カラムソート
     df_all_feature_sorted = df_all_feature.reindex(
