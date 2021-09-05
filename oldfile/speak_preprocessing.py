@@ -98,7 +98,7 @@ def research_speak_data(start_speak, end_speak, speak_label):
 
 
 #
-# c
+# 発話・非発話の時間を抽出
 #
 
 

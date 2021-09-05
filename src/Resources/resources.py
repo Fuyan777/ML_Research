@@ -1,15 +1,35 @@
-# base path
-path = "/Users/fuyan/Documents/ml-research/"
-
-# Openfaceの出力値
+# Openfaceの出力ファイルのpath
 face_feature_path = "/Users/fuyan/Documents/"
+
+# base path
+path = "/Users/fuyan/LocalDocs/ml-research/"
 
 # ディレクトリ内のcsvファイル
 face_feature_csv = path + "csv"
 
+# load colums
+columns_loading = [
+    " timestamp", " gaze_angle_x", " gaze_angle_y", " pose_Tx",
+    " pose_Ty", " pose_Tz", " pose_Rx",
+    " pose_Ry", " pose_Rz", " y_62", " y_66",
+]
 
-# colums
-speak_columns = [
+# set header columns
+columns_setting_header = [
+    " gaze_angle_x", " gaze_angle_y", " pose_Tx", " pose_Ty",
+    " pose_Tz", " pose_Rx", " pose_Ry",
+    " pose_Rz", "mouth", "y",
+]
+
+# set pre feature header columns
+columns_setting_pre_feature_header = [
+    " gaze_angle_x", " gaze_angle_y", "gaze_angle_hypo",
+    " pose_Tx", " pose_Ty", " pose_Tz", " pose_Rx", " pose_Ry",
+    " pose_Rz", "mouth", "y", "y_pre_label"  # 数秒前のラベル
+]
+
+# train columns
+columns_speak = [
     "y",
     "y_pre_label",  # 数秒前のyのラベル
     # gaze_x

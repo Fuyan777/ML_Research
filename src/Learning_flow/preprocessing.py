@@ -1,4 +1,15 @@
+# learning module
 from learning_flow import dataset
+from resources import resources
+
+# external module
+import pandas as pd
+import numpy as np
+import warnings
+
+
+# SettingWithCopyWarningの非表示
+warnings.simplefilter("ignore")
 
 
 class Preprocessing:
@@ -17,13 +28,21 @@ class Preprocessing:
 
         face_feature_data = data.load_face("a-20210128")
 
+        # TODO: 動的にする
+        pre_speak_frame = 12
+        user_charactor = "a"
+        speak_predeiction_time = "1w_1s"
+
         # run
         extraction_speak_by_speak(start_speak, end_speak, speak_label)
         create_csv_labeling_face_by_speak(
             start_speak,
             end_speak,
             speak_label,
-            face_feature_data
+            face_feature_data,
+            pre_speak_frame,
+            user_charactor,
+            speak_predeiction_time
         )
 
     #
@@ -31,15 +50,24 @@ class Preprocessing:
     #
 
 
-def create_csv_labeling_face_by_speak(start_speak, end_speak, speak_label, face_data):
+def create_csv_labeling_face_by_speak(
+    start_time,
+    end_time, label,
+    face_data,
+    pre_speak_frame,
+    user_charactor,
+    speak_predeiction_time
+):
     """ description
 
     Parameters
     ----------
     start_speak : start speak time.
     end_speak :  end speak time.
-    speak_label : speak: x, non-speak：s
+    label : speak: x, non-speak：s
     face_data : pandas data from openface output file
+    user_charactor : a, b, c, etc...
+    speak_predeiction_time : 0.5s, 1.0s, 2.0, etc...
 
 
     Returns
@@ -47,6 +75,73 @@ def create_csv_labeling_face_by_speak(start_speak, end_speak, speak_label, face_
     non(create csv)
 
     """
+
+    print("-------- START : create_csv_labeling_face_by_speak ----------")
+
+    # 誤認識は全て削除
+    face_feature_dropped = face_data[face_data[" success"] == 1]
+    df_face = pd.DataFrame(
+        face_feature_dropped,
+        columns=resources.columns_loading,
+    )
+
+    # train用のheaderにセットしたpandas dataを作成
+    df_header = pd.DataFrame(columns=resources.columns_setting_header)
+
+    for index in range(len(label)):
+        # 各非発話区間ごとの顔特徴データ
+        ts_df = df_face[
+            (df_face[" timestamp"] >= start_time[index]) &
+            (df_face[" timestamp"] <= end_time[index])
+        ]
+
+        # 口の開き具合の算出
+        ts_df["mouth"] = ts_df[" y_66"].copy() - ts_df[" y_62"].copy()
+
+        # 視線斜めの算出
+        ts_df.loc[
+            (ts_df[" gaze_angle_x"] < 0.0) | (ts_df[" gaze_angle_y"] < 0.0),
+            "gaze_angle_hypo",
+        ] = -(np.sqrt(ts_df[" gaze_angle_x"] ** 2 + ts_df[" gaze_angle_y"] ** 2))
+
+        ts_df.loc[
+            ~((ts_df[" gaze_angle_x"] < 0.0) | (ts_df[" gaze_angle_y"] < 0.0)),
+            "gaze_angle_hypo",
+        ] = np.sqrt(ts_df[" gaze_angle_x"] ** 2 + ts_df[" gaze_angle_y"] ** 2)
+
+        # 発話 or 非発話　のラベル付け
+        ts_df["y"] = 0 if label[index] == "x" else 1
+        ts_df_feature = ts_df.drop([" timestamp", " y_62", " y_66"], axis=1)
+
+        # 少数第三まで
+        df_feature = round(ts_df_feature, 3)
+
+        # 縦に結合
+        df_header = pd.concat([df_header, df_feature])
+
+    # 数秒先をラベリング
+    df_header["y_pre_label"] = df_header["y"].shift(-pre_speak_frame)
+    df_feature = df_header.dropna()
+    print("【発話ラベリングデータ】")
+    print("全発話数　: %s" % (len(df_feature)))
+    print("発話数　　: %s" % (len(df_feature[df_feature["y"] == 0])))
+    print("非発話数　: %s" % (len(df_feature[df_feature["y"] == 1])))
+
+    df_feature_reindex = df_feature.reindex(
+        columns=resources.columns_setting_pre_feature_header
+    )
+    # csvに書き込み
+    df_feature_reindex.to_csv(
+        resources.face_feature_csv +
+        "/%s-feature/pre-feature-value/pre-feat_val_%s.csv" % (user_charactor,
+                                                               speak_predeiction_time),
+        mode="w",  # 上書き
+        # header=False,
+        index=False,
+    )
+    print("***** FINISH CSV FILE (pre-feat-val) *****")
+
+    print("-------- END : create_csv_labeling_face_by_speak ----------\n")
 
     #
     # 発話特性の抽出
@@ -82,8 +177,9 @@ def extraction_speak_by_speak(start_speak, end_speak, speak_label):
 
     speak_interval_average = sum(speak_interval) / len(speak_interval)
 
-    print("発話回数: %s" % (spk_cnt))
-    print("平均発話時間: %s" % (round(speak_interval_average, 3)))
-    print("発話最大時間: %s" % (max(speak_interval)))
+    print("【発話特性データ】")
+    print("発話回数　　　: %s" % (spk_cnt))
+    print("平均発話時間　: %s" % (round(speak_interval_average, 3)))
+    print("発話最大時間　: %s" % (max(speak_interval)))
 
     print("-------- END : extraction_speak_by_speak ----------\n")
