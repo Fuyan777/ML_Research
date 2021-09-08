@@ -1,5 +1,6 @@
 # learning module
 from learning_flow import dataset
+from learning_flow import sliding_window
 from resources import resources
 
 # external module
@@ -20,21 +21,24 @@ class Preprocessing:
         print("extraction_speak_features")
         data = dataset.Dataset()
 
-        # 発話（.txt）データのロード
+        # TODO: 動的にする
+        user_charactor = "a"
+        speak_prediction_time = "1w_1s"
+        window_size = 6
+        pre_speak_frame = 12
         # TODO: 後ほどArray<String>に変更
+        user_date = "a-20210128"
+
+        # 発話（.txt）データのロード
         (start_speak,
             end_speak,
-            speak_label) = data.load_speck_txt_data("a-20210128")
+            speak_label) = data.load_speck_txt_data(user_date)
 
-        face_feature_data = data.load_face("a-20210128")
+        face_feature_data = data.load_face(user_date)
 
-        # TODO: 動的にする
-        pre_speak_frame = 12
-        user_charactor = "a"
-        speak_predeiction_time = "1w_1s"
-
-        # run
-        extraction_speak_by_speak(start_speak, end_speak, speak_label)
+        # 発話特性データの抽出
+        extraction_speak_feature_by_speak(start_speak, end_speak, speak_label)
+        # 顔特徴データのラベリング
         create_csv_labeling_face_by_speak(
             start_speak,
             end_speak,
@@ -42,8 +46,70 @@ class Preprocessing:
             face_feature_data,
             pre_speak_frame,
             user_charactor,
-            speak_predeiction_time
+            speak_prediction_time
         )
+
+        # ウィンドウ処理前の顔特徴データのロード
+        previous_window_face_data = data.load_previous_window_face_data(
+            user_charactor,
+            speak_prediction_time
+        )
+
+        # 特徴量の抽出
+        extraction_feature_value(
+            previous_window_face_data,
+            window_size,
+            user_charactor,
+            speak_prediction_time
+        )
+
+    #
+    # 特徴量の抽出
+    #
+
+
+def extraction_feature_value(
+    df_face,
+    window_size,
+    user_charactor,
+    speak_prediction_time
+):
+    """ description
+
+    Parameters
+    ----------
+    df_dace : pandas data of previous window face features data
+    window_size : window size
+    shift_size : overlap window size
+    user_charactor : a, b, c, etc...
+    speak_prediction_time : 0.5s, 1.0s, 2.0, etc...
+
+
+    Returns
+    ----------
+    non(create feature_value csv)
+
+    """
+
+    print("-------- START : extraction_feature_value ----------")
+
+    slide = sliding_window.SlidingWindow()
+    df_feature_slid = slide.run(window_size, df_face)
+    print(df_feature_slid)
+
+    # 特徴量をcsvに書き込み
+
+    featues_path = resources.face_feature_csv + \
+        "/%s-feature/feature-value/feat_val_%s.csv"
+    df_feature_slid.to_csv(
+        featues_path % (user_charactor, speak_prediction_time),
+        mode="w",  # 上書き
+        index=False,
+    )
+
+    print("***** COMPLETE CREATE CSV FILE (feat-val) *****")
+
+    print("-------- END : extraction_feature_value ----------")
 
     #
     # 発話データをもとに顔特徴データにラベリング
@@ -56,7 +122,7 @@ def create_csv_labeling_face_by_speak(
     face_data,
     pre_speak_frame,
     user_charactor,
-    speak_predeiction_time
+    speak_prediction_time
 ):
     """ description
 
@@ -133,13 +199,13 @@ def create_csv_labeling_face_by_speak(
     # csvに書き込み
     df_feature_reindex.to_csv(
         resources.face_feature_csv +
-        "/%s-feature/pre-feature-value/pre-feat_val_%s.csv" % (user_charactor,
-                                                               speak_predeiction_time),
+        "/%s-feature/previous-feature-value/pre-feat_val_%s.csv" % (user_charactor,
+                                                                    speak_prediction_time),
         mode="w",  # 上書き
         # header=False,
         index=False,
     )
-    print("***** FINISH CSV FILE (pre-feat-val) *****")
+    print("***** COMPLETE CREATE CSV FILE (pre-feat-val) *****")
 
     print("-------- END : create_csv_labeling_face_by_speak ----------\n")
 
@@ -148,7 +214,7 @@ def create_csv_labeling_face_by_speak(
     #
 
 
-def extraction_speak_by_speak(start_speak, end_speak, speak_label):
+def extraction_speak_feature_by_speak(start_speak, end_speak, speak_label):
     """ description
 
     Parameters

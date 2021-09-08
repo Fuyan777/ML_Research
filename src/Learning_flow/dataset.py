@@ -34,6 +34,23 @@ class Dataset:
         return face_feature_data
 
     #
+    # ウィンドウ処理前の顔特徴データのローディング
+    #
+
+    def load_previous_window_face_data(
+        self,
+        user_charactor,
+        speak_prediction_time
+    ):
+        # csvに読み込み
+        df_face = pd.read_csv(
+            resources.face_feature_csv +
+            "/%s-feature/previous-feature-value/pre-feat_val_%s.csv" % (user_charactor,
+                                                                        speak_prediction_time),
+        )
+        return df_face
+
+    #
     # 発話データのローディング
     #
 
