@@ -101,6 +101,56 @@ class Dataset:
             print("Error speak data nothing")
             return
 
-        print("----- FINISH : oad_speck_txt_data -------\n")
+        print("----- FINISH : load_speck_txt_data -------\n")
 
         return (start_speak, end_speak, speak_label)
+
+        #
+        # 特徴量のロード
+        #
+
+    def load_feature_value(
+        self,
+        user_charactor,
+        speak_prediction_time,
+    ):
+        """ description
+
+        Parameters
+        ----------
+        user_charactor
+        speak_prediction_time 
+
+        Returns
+        ----------
+
+        """
+
+        print("----- START : looad_feature_value --------")
+
+        df = pd.read_csv(
+            resources.face_feature_csv + "/%s-feature/feature-value/feat_val_%s.csv"
+            % (user_charactor, speak_prediction_time),
+            encoding="utf-8",
+        )
+        speak_data = pd.DataFrame(df, columns=resources.feature_reindex_colums)
+
+        # 各クラスのデータ数 確認
+        print("y_pre_label: 0")
+        print(len(speak_data[speak_data["y_pre_label"] == 0].index))
+        print("y_pre_label: 1")
+        print(len(speak_data[speak_data["y_pre_label"] == 1].index))
+
+        # オーバーサンプリング
+        speak_0_lim = speak_data[speak_data["y_pre_label"] == 0].head(800)
+        speak_1_lim = speak_data[speak_data["y_pre_label"] == 1].head(800)
+
+        # print(speak_0_lim)
+        # print(speak_1_lim)
+
+        speak_feature_value = pd.concat([speak_0_lim, speak_1_lim])
+        print(speak_feature_value)
+
+        print("----- FINISH : looad_feature_value -------\n")
+
+        return speak_feature_value

@@ -84,10 +84,10 @@ def main():
     )
 
     # ランダムフォレストで学習
-    # predict_random_forest(rf, X_train, y_train, X, y)
+    predict_random_forest(rf, X_train, y_train, X, y)
 
     # 特徴量選択
-    # feature_importance(X, y)
+    feature_importance(X, y)
 
     # 決定境界
     # generate_decision_regions
@@ -117,7 +117,8 @@ def predict_random_forest(rf, X_train, y_train, X, y):
     print("----------")
     print("accuracy: {}".format(round(accuracy_score(y, y_pred), 3)))
     print("recall: {}".format(round(recall_score(y, y_pred, average="macro"), 3)))
-    print("precision: {}".format(round(precision_score(y, y_pred, average="macro"), 3)))
+    print("precision: {}".format(
+        round(precision_score(y, y_pred, average="macro"), 3)))
     print("----------")
 
     # 変数重要度
@@ -150,9 +151,11 @@ def feature_importance(X, y):
     rfe.fit(X, y)
 
     # 削減実行後のデータを再構成
-    rfeData = pd.DataFrame(rfe.transform(X), columns=X.columns.values[rfe.support_])
+    rfeData = pd.DataFrame(rfe.transform(
+        X), columns=X.columns.values[rfe.support_])
 
-    X_train, X_test, y_train, y_test = train_test_split(rfeData, y, test_size=0.2)
+    X_train, X_test, y_train, y_test = train_test_split(
+        rfeData, y, test_size=0.2)
 
     rf = RandomForestClassifier(
         max_depth=max_depth, n_estimators=100, random_state=1000
@@ -224,7 +227,8 @@ def generate_heatmap(speak_data):
         xticklabels=corr_matrix.columns.values,
         yticklabels=corr_matrix.columns.values,
     )
-    plt.savefig("/Users/fuyan/Documents/siraisi_lab/M1/04_program/graph/sns/sns.png")
+    plt.savefig(
+        "/Users/fuyan/Documents/siraisi_lab/M1/04_program/graph/sns/sns.png")
 
 
 #

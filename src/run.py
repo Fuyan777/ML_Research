@@ -1,10 +1,10 @@
-from learning_flow import output
+from learning_flow import model_selection
 
 
 def main():
-    print("init")
-    out = output.Output()
-    out.out_predict_speak()
+    print("out_predict_speak")
+    m = model_selection.ModelSelection()
+    m.set_machine_learning_model()
 
 
 if __name__ == "__main__":

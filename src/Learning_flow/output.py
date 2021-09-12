@@ -8,4 +8,4 @@ class Output:
     def out_predict_speak(self):
         print("out_predict_speak")
         m = model.Model()
-        m.learn_random_forest()
+        m.set_machine_learning_model()
