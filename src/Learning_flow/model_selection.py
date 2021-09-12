@@ -18,14 +18,8 @@ class ModelSelection:
     def __init__(self):
         print("Model")
 
-    def set_machine_learning_model(self):
+    def set_machine_learning_model(self, user_charactor, speak_prediction_time):
         print("learn_random_forest")
-        # pre = preprocessing.Preprocessing()
-        # pre.extraction_speak_features()
-
-        # TODO: dynamic parameter
-        user_charactor = "a"
-        speak_prediction_time = "1w_1s"
 
         data = dataset.Dataset()
         speak_feature_value = data.load_feature_value(

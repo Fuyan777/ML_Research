@@ -17,17 +17,34 @@ class Preprocessing:
     def __init__(self):
         print("Preprocessing")
 
-    def extraction_speak_features(self):
+    def extraction_speak_features(
+        self,
+        user_charactor,
+        speak_prediction_time,
+        window_size,
+        pre_speak_frame,
+        user_date
+    ):
+        """
+        Parameter
+        ---------
+        user_charactor: String
+        speak_prediction_time: String
+        window_size: Int
+        pre_speak_frame: Int
+        user_date: Array<String>
+
+        """
+        # # TODO: 動的にする
+        # user_charactor = "a"
+        # speak_prediction_time = "1w_1s"
+        # window_size = 6
+        # pre_speak_frame = 12
+        # # TODO: 後ほどArray<String>に変更
+        # user_date = "a-20210128"
+
         print("extraction_speak_features")
         data = dataset.Dataset()
-
-        # TODO: 動的にする
-        user_charactor = "a"
-        speak_prediction_time = "1w_1s"
-        window_size = 6
-        pre_speak_frame = 12
-        # TODO: 後ほどArray<String>に変更
-        user_date = "a-20210128"
 
         # 発話（.txt）データのロード
         (start_speak,
