@@ -31,6 +31,9 @@ class ModelSelection:
         y = speak_feature_value.loc[:, "y_pre_label"]
         X = speak_feature_value.loc[:, resources.x_variable_feature_colums]
 
+        print(y)
+        print(X)
+
         # 学習データ分割
         X_train, X_test, y_train, y_test = train_test_split(
             X,

@@ -2,7 +2,7 @@ from learning_flow import model_selection
 from learning_flow import preprocessing
 
 # parameter
-user_charactor = ["a", "b", "c"]
+user_charactor = ["e"]  # ["a", "b", "c"]
 speak_prediction_time = ["1w_1s"]
 
 # ウィンドウサイズの設定w（0.033 : 0.5秒先=15, 1秒=30, 2秒=60, 3秒=90, 5秒=150 ）
@@ -12,7 +12,7 @@ window_size_big = [6, 12, 24, 36, 60]
 
 # 予測フレームシフトの設定s（ 0.5秒先=6, 1秒=12, 2秒=24, 3秒=36, 5秒=60 ）
 pre_speak_frame = [6, 12, 24, 36, 60]
-exp_date = ["20210128"]
+exp_date = ["20210611"]
 
 
 def main():
@@ -25,17 +25,17 @@ def main():
         for date in exp_date:
             user_date = user_index + "-" + date
 
+            # pre.extraction_speak_features(
+            #     user_index,
+            #     speak_prediction_time[0],
+            #     window_size[0],
+            #     pre_speak_frame[0],
+            #     user_date
+            # )
+
             m = model_selection.ModelSelection()
             m.set_machine_learning_model(
                 user_index, speak_prediction_time[0])
-
-    # pre.extraction_speak_features(
-    #     user_index,
-    #     speak_prediction_time[0],
-    #     window_size[0],
-    #     pre_speak_frame[0],
-    #     user_date
-    # )
 
     return
 

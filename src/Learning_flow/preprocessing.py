@@ -35,13 +35,6 @@ class Preprocessing:
         user_date: Array<String>
 
         """
-        # # TODO: 動的にする
-        # user_charactor = "a"
-        # speak_prediction_time = "1w_1s"
-        # window_size = 6
-        # pre_speak_frame = 12
-        # # TODO: 後ほどArray<String>に変更
-        # user_date = "a-20210128"
 
         print("extraction_speak_features")
         data = dataset.Dataset()
@@ -205,7 +198,8 @@ def create_csv_labeling_face_by_speak(
     # 数秒先をラベリング
     df_header["y_pre_label"] = df_header["y"].shift(-pre_speak_frame)
     df_feature = df_header.dropna()
-    print("【発話ラベリングデータ】")
+
+    print("【ウィンドウ処理前の発話ラベリングデータ】")
     print("全発話数　: %s" % (len(df_feature)))
     print("発話数　　: %s" % (len(df_feature[df_feature["y"] == 0])))
     print("非発話数　: %s" % (len(df_feature[df_feature["y"] == 1])))
@@ -263,6 +257,6 @@ def extraction_speak_feature_by_speak(start_speak, end_speak, speak_label):
     print("【発話特性データ】")
     print("発話回数　　　: %s" % (spk_cnt))
     print("平均発話時間　: %s" % (round(speak_interval_average, 3)))
-    print("発話最大時間　: %s" % (max(speak_interval)))
+    print("発話最大時間　: %s" % (round(max(speak_interval), 3)))
 
     print("-------- END : extraction_speak_by_speak ----------\n")
