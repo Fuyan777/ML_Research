@@ -5,6 +5,7 @@ from resources import resources
 
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 # sklearn
 from sklearn.ensemble import RandomForestClassifier
@@ -42,6 +43,7 @@ class ModelSelection:
             random_state=0
         )
         make_random_forest_model(
+            user_charactor,
             X_train, y_train,
             X_test, y_test,
             X, y
@@ -53,6 +55,7 @@ class ModelSelection:
 
 
 def make_random_forest_model(
+        user_charactor,
         X_train, y_train,
         X_test, y_test,
         X, y
@@ -90,15 +93,44 @@ def make_random_forest_model(
         {"var": X_train.columns, "importance": rf.feature_importances_}
     )
 
+    feature_importance = importance.sort_values(
+        "importance", ascending=False
+    ).head(5)
+
     print("----importance------")
-    print(importance.sort_values("importance", ascending=False).head(10))
+    print(feature_importance)
     print("--------------------\n")
+
+    # 棒グラフの生成
+    show_bar_graph(
+        user_charactor,
+        feature_importance["importance"].values,
+        feature_importance["var"].values
+    )
 
     feature_selection_RFE(rf, X_train, y_train, X, y, n)
 
-    #
-    # 特徴量選択
-    #
+
+def show_bar_graph(user_charactor, y, x_label_array):
+    x = [1, 2, 3, 4, 5]
+
+    fig_bar_graph = plt.figure(figsize=(5, 4))
+    fig_bar_graph.subplots_adjust(left=0.2)
+
+    plt.title("features importance: {} user".format(user_charactor))
+    plt.barh(x, y, align="center")  # 中央寄せで棒グラフ作成
+    plt.yticks(x, x_label_array)  # X軸のラベル
+
+    # plt.show()
+    fig_bar_graph.savefig(
+        resources.path +
+        "ml_graph/{}_importance_bar_graph.png".format(user_charactor)
+    )
+
+
+#
+# 特徴量選択
+#
 
 
 def feature_selection_RFE(rf, X_train, y_train, X, y, n):
