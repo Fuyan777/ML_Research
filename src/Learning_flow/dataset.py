@@ -142,8 +142,8 @@ class Dataset:
         print(len(speak_data[speak_data["y_pre_label"] == 1].index))
 
         # オーバーサンプリング
-        speak_0_lim = speak_data[speak_data["y_pre_label"] == 0].head(500)
-        speak_1_lim = speak_data[speak_data["y_pre_label"] == 1].head(500)
+        speak_0_lim = speak_data[speak_data["y_pre_label"] == 0].head(400)
+        speak_1_lim = speak_data[speak_data["y_pre_label"] == 1].head(400)
 
         # print(speak_0_lim)
         # print(speak_1_lim)

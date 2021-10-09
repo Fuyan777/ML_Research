@@ -3,3 +3,5 @@ __pycache__
 elan_output_txt
 csv
 ml_graph
+.ipynb_checkpoints
+.vscode

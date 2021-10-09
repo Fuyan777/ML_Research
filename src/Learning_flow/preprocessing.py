@@ -44,7 +44,11 @@ class Preprocessing:
             end_speak,
             speak_label) = data.load_speck_txt_data(user_date)
 
+        # csvから抽出した顔特徴
         face_feature_data = data.load_face(user_date)
+
+        # 認識成功率
+        show_recognition_success_rate(face_feature_data)
 
         # 発話特性データの抽出
         extraction_speak_feature_by_speak(start_speak, end_speak, speak_label)
@@ -174,7 +178,7 @@ def create_csv_labeling_face_by_speak(
         # 口の開き具合の算出
         ts_df["mouth"] = ts_df[" y_66"].copy() - ts_df[" y_62"].copy()
 
-        # 視線斜めの算出
+        # 視線斜めの算出（hypotenuse）
         ts_df.loc[
             (ts_df[" gaze_angle_x"] < 0.0) | (ts_df[" gaze_angle_y"] < 0.0),
             "gaze_angle_hypo",
@@ -260,3 +264,12 @@ def extraction_speak_feature_by_speak(start_speak, end_speak, speak_label):
     print("発話最大時間　: %s" % (round(max(speak_interval), 3)))
 
     print("-------- END : extraction_speak_by_speak ----------\n")
+
+
+def show_recognition_success_rate(face_feature):
+    all_count = len(face_feature[" success"])
+    success_count = len(face_feature[face_feature[" success"] == 1])
+    failuree_count = len(face_feature[face_feature[" success"] == 0])
+    print("【認識成功率】")
+    print("成功率　　　: %s" % (success_count / all_count))
+    print("失敗率　　　: %s" % (failuree_count / all_count))

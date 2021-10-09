@@ -115,7 +115,7 @@ def show_bar_graph(user_charactor, y, x_label_array):
     x = [1, 2, 3, 4, 5]
 
     fig_bar_graph = plt.figure(figsize=(5, 4))
-    fig_bar_graph.subplots_adjust(left=0.2)
+    fig_bar_graph.subplots_adjust(left=0.3)
 
     plt.title("features importance: {} user".format(user_charactor))
     plt.barh(x, y, align="center")  # 中央寄せで棒グラフ作成
@@ -124,7 +124,8 @@ def show_bar_graph(user_charactor, y, x_label_array):
     # plt.show()
     fig_bar_graph.savefig(
         resources.path +
-        "ml_graph/{}_importance_bar_graph.png".format(user_charactor)
+        "ml_graph/feature_importance/{}_importance_bar_graph.png".format(
+            user_charactor)
     )
 
 

@@ -2,7 +2,7 @@ from learning_flow import model_selection
 from learning_flow import preprocessing
 
 # parameter
-user_charactor = ["h"]  # ["a", "b", "c"]
+user_charactor = ["f"]  # ["a", "b", "c"]
 speak_prediction_time = ["1w_1s"]
 
 # ウィンドウサイズの設定w（0.033 : 0.5秒先=15, 1秒=30, 2秒=60, 3秒=90, 5秒=150 ）
@@ -12,7 +12,7 @@ window_size_big = [6, 12, 24, 36, 60]
 
 # 予測フレームシフトの設定s（ 0.5秒先=6, 1秒=12, 2秒=24, 3秒=36, 5秒=60 ）
 pre_speak_frame = [6, 12, 24, 36, 60]
-exp_date = ["20210615"]
+exp_date = ["20210611"]
 
 
 def main():
