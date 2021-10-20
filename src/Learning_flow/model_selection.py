@@ -10,9 +10,12 @@ import matplotlib.pyplot as plt
 # sklearn
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split, cross_val_predict, cross_val_score
-from sklearn.metrics import confusion_matrix, accuracy_score, recall_score, precision_score
+from sklearn.metrics import confusion_matrix, accuracy_score, recall_score, precision_score, f1_score
 from sklearn.model_selection import GridSearchCV
 from sklearn.feature_selection import RFE
+from sklearn.model_selection import TimeSeriesSplit
+from imblearn.under_sampling import RandomUnderSampler
+from collections import Counter
 
 
 class ModelSelection:
@@ -28,6 +31,10 @@ class ModelSelection:
             speak_prediction_time
         )
 
+        print("\n==================================")
+        print(user_charactor)
+        print("==================================\n")
+
         # 目的，説明変数の切り分け
         y = speak_feature_value.loc[:, "y_pre_label"]
         X = speak_feature_value.loc[:, resources.x_variable_feature_colums]
@@ -42,12 +49,95 @@ class ModelSelection:
             test_size=0.3,
             random_state=0
         )
-        make_random_forest_model(
+
+        make_random_forest_model_timesplit(
             user_charactor,
-            X_train, y_train,
-            X_test, y_test,
             X, y
         )
+
+#
+# 学習モデルの構築（random forest）
+#
+
+
+def make_random_forest_model_timesplit(
+    user_charactor,
+    X, y
+):
+    # スコアの保持
+    score_array = []
+
+    # TimeSeriesSplit cross validation
+    tscv = TimeSeriesSplit(n_splits=5)
+    time_series_cnt = 0
+
+    for train_index, test_index in tscv.split(X):
+        print(
+            "---------TimeSeriesSplit {}------------".format(time_series_cnt)
+        )
+        # 説明変数
+        X_train, X_test = [], []
+        # 目的変数
+        y_train, y_test = [], []
+
+        X_train, X_test = X.iloc[train_index], X.iloc[test_index]
+        y_train, y_test = y.iloc[train_index], y.iloc[test_index]
+
+        print("\nアンダーサンプリング前\n")
+        # 訓練データの可視化
+        print("[Train]\n発話のデータ数　: %d" % (len(y_train[y_train == 0])))
+        print("非発話のデータ数: %d\n" % (len(y_train[y_train == 1])))
+
+        # テストデータの可視化
+        print("[Test]\n発話のデータ数　: %d" % (len(y_test[y_test == 0])))
+        print("非発話のデータ数: %d" % (len(y_test[y_test == 1])))
+
+        print("\nアンダーサンプリング後")
+        rus = RandomUnderSampler(random_state=0)
+        X_train_resampled, y_train_resampled = rus.fit_resample(
+            X_train, y_train)
+        X_test_resampled, y_test_resampled = rus.fit_resample(
+            X_test, y_test)
+
+        visal_train_sampled = sorted(Counter(y_train_resampled).items())
+        visal_test_sampled = sorted(Counter(y_test_resampled).items())
+        print("[Train]\n発話・非発話　: {}\n".format(visal_train_sampled))
+        print("[Test]\n発話・非発話 : {}".format(visal_test_sampled))
+
+        # 学習
+        rf = RandomForestClassifier(
+            max_depth=3,
+            n_estimators=100,
+            random_state=0
+        ).fit(X_train_resampled, y_train_resampled)
+
+        rf_score = rf.score(X_test_resampled, y_test_resampled)
+
+        # 精度の可視化
+        y_pred = rf.predict(X_test_resampled)
+        print("\n[ {} times score ]\n".format(time_series_cnt))
+        print(confusion_matrix(y_test_resampled, y_pred))
+
+        score_accuracy = round(accuracy_score(y_test_resampled, y_pred), 3)
+        score_recall = round(recall_score(y_test_resampled, y_pred), 3)
+        score_precision = round(precision_score(y_test_resampled, y_pred), 3)
+        score_f1 = round(f1_score(y_test_resampled, y_pred), 3)
+
+        print("\naccuracy: {}".format(score_accuracy))
+        print("recall: {}".format(score_recall))
+        print("precision: {}".format(score_precision))
+        print("F1 score: {}\n".format(score_f1))
+
+        score_array.append(score_f1)
+
+        time_series_cnt += 1
+
+    print("f1_score_array")
+    print(score_array)
+    print("平均精度")
+    print(np.mean(score_array))
+    print(np.std(score_array))
+
 
 #
 # 学習モデルの構築（random forest）
@@ -59,6 +149,8 @@ def make_random_forest_model(
         X_train, y_train,
         X_test, y_test,
         X, y
+
+
 ):
     max_depth = 3
     n = 10
@@ -70,6 +162,7 @@ def make_random_forest_model(
         random_state=0
     ).fit(X_train, y_train)
 
+    # k hold cross validation
     y_pred = cross_val_predict(rf, X, y, cv=n)
     print(confusion_matrix(y, y_pred))
 
@@ -161,24 +254,3 @@ def feature_selection_RFE(rf, X_train, y_train, X, y, n):
     print("Average score: {}".format(np.mean(scores)))
 
     print("-------Finish-----------")
-
-
-    # grid research
-"""
-    param_grid = {
-        'max_depth': [2, 3, 4, 5, 6, 7],
-        'min_samples_leaf': [1, 3, 5, 7, 10]
-    }
-
-    grid_search = GridSearchCV(
-        rf,
-        param_grid,
-        iid=True, cv=n,
-        return_train_score=True
-    )
-    grid_search.fit(X_train, y_train)
-    print('best score: {:0.3f}'.format(grid_search.score(X_test, y_test)))
-    print('best params: {}'.format(grid_search.best_params_))
-    print('best val score:  {:0.3f}'.format(grid_search.best_score_))
-
-"""

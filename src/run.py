@@ -2,7 +2,8 @@ from learning_flow import model_selection
 from learning_flow import preprocessing
 
 # parameter
-user_charactor = ["f"]  # ["a", "b", "c"]
+# ["d", "e", "f"]  # ["a", "b", "c"] ["g", "h", "i"]
+user_charactor = ["i"]  # , "h", "i"]
 speak_prediction_time = ["1w_1s"]
 
 # ウィンドウサイズの設定w（0.033 : 0.5秒先=15, 1秒=30, 2秒=60, 3秒=90, 5秒=150 ）
