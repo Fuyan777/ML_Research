@@ -42,13 +42,15 @@ class ModelSelection:
         print(y)
         print(X)
 
-        # 学習データ分割
-        X_train, X_test, y_train, y_test = train_test_split(
-            X,
-            y,
-            test_size=0.3,
-            random_state=0
-        )
+        # # 学習データ分割
+        # X_train, X_test, y_train, y_test = train_test_split(
+        #     X,
+        #     y,
+        #     test_size=0.3,
+        #     random_state=0
+        # )
+
+        # 過去データの訓練データ構築
 
         make_random_forest_model_timesplit(
             user_charactor,
@@ -137,6 +139,34 @@ def make_random_forest_model_timesplit(
     print("平均精度")
     print(np.mean(score_array))
     print(np.std(score_array))
+
+#
+# 変数重要度
+#
+
+
+def feature_importance(X_train, rf, user_charactor):
+    # 変数重要度
+    print("[Feature Importances]")
+
+    importance = pd.DataFrame(
+        {"var": X_train.columns, "importance": rf.feature_importances_}
+    )
+
+    feature_importance = importance.sort_values(
+        "importance", ascending=False
+    ).head(5)
+
+    print("----importance------")
+    print(feature_importance)
+    print("--------------------\n")
+
+    # 棒グラフの生成
+    show_bar_graph(
+        user_charactor,
+        feature_importance["importance"].values,
+        feature_importance["var"].values
+    )
 
 
 #

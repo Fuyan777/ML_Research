@@ -19,3 +19,10 @@ Web会議における予備動作を用いた発話欲求推定手法の実現
 - [情報処理学会　第83回全国大会 (2021年3月)](http://www.ipsj.or.jp/award/taikaigakusei.html)
     - タイトル：Web会議における発話衝突抑制のための顔特徴を用いた発話予測手法の提案
     - **学生奨励賞** 受賞
+- [マルチメディア，分散，協調とモバイル(DICOMO2021)シンポジウム (2021年6月)](http://tsys.jp/dicomo/program/2E_abst.html#2E-5)
+    - タイトル：Web会議における予備動作を用いた発話欲求推定手法の提案
+
+# 内部処理
+
+## クラス図
+![speak_prediction](https://user-images.githubusercontent.com/29572313/141080202-dbb13af3-c477-4018-a087-4d390bde0cfc.png)

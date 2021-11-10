@@ -1,5 +1,5 @@
 # Openfaceの出力ファイルのpath
-face_feature_path = "/Users/fuyan/Documents/"
+face_feature_path = "/Volumes/mac-ssd/face_csv/"
 
 # base path
 path = "/Users/fuyan/LocalDocs/ml-research/"
