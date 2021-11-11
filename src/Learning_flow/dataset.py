@@ -76,8 +76,15 @@ class Dataset:
         end_speak = []  # 発話終了時間
         speak_label = []  # 発話：x、非発話：s
 
+        # f = open(
+        #     "elan_output_txt/%s.txt" % face_data_path,
+        #     "r",
+        #     encoding="UTF-8"
+        # )
+
+        # TODO: あとで消す
         f = open(
-            "elan_output_txt/%s.txt" % face_data_path,
+            "elan_output_txt/test.txt",
             "r",
             encoding="UTF-8"
         )
@@ -101,9 +108,44 @@ class Dataset:
             print("Error speak data nothing")
             return
 
+        replace_list = []
+
+        if "x" not in speak_label:
+            for s in speak_label:
+                if "speech" in s:
+                    text = s.replace("speech", "x")
+                    replace_list.append(text)
+                elif "noise" in s:
+                    text = s.replace("noise", "s")
+                    replace_list.append(text)
+                else:
+                    text = s.replace("noEnergy", "s")
+                    replace_list.append(text)
+        print(replace_list)
+
         print("----- FINISH : load_speck_txt_data -------\n")
 
-        return (start_speak, end_speak, speak_label)
+        return (start_speak, end_speak, replace_list)
+
+    def load_speck_csv_data(self, face_data_path):
+        """ description
+
+        Parameters
+        ----------
+        face_data_path : speak data path for elan_output_txt
+
+
+        Returns
+        ----------
+        start_speak : start speak time.
+        end_speak   :  end speak time.
+        speak_label : speak: x, non-speak：s.
+
+        """
+
+        print("----- START : oad_speck_txt_data -------")
+
+        print("----- FINISH : load_speck_txt_data -------\n")
 
         #
         # 特徴量のロード
