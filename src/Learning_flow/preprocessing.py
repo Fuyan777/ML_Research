@@ -23,7 +23,8 @@ class Preprocessing:
         speak_prediction_time,
         window_size,
         pre_speak_frame,
-        user_date
+        user_date,
+        exp_date
     ):
         """
         Parameter
@@ -60,13 +61,15 @@ class Preprocessing:
             face_feature_data,
             pre_speak_frame,
             user_charactor,
-            speak_prediction_time
+            speak_prediction_time,
+            exp_date
         )
 
         # ウィンドウ処理前の顔特徴データのロード
         previous_window_face_data = data.load_previous_window_face_data(
             user_charactor,
-            speak_prediction_time
+            speak_prediction_time,
+            exp_date
         )
 
         # 特徴量の抽出
@@ -74,7 +77,8 @@ class Preprocessing:
             previous_window_face_data,
             window_size,
             user_charactor,
-            speak_prediction_time
+            speak_prediction_time,
+            exp_date
         )
 
     #
@@ -86,7 +90,8 @@ def extraction_feature_value(
     df_face,
     window_size,
     user_charactor,
-    speak_prediction_time
+    speak_prediction_time,
+    exp_date
 ):
     """ description
 
@@ -114,9 +119,9 @@ def extraction_feature_value(
     # 特徴量をcsvに書き込み
 
     featues_path = resources.face_feature_csv + \
-        "/%s-feature/feature-value/feat_val_%s.csv"
+        "/%s-feature/feature-value/feat_val_%s_%s.csv"
     df_feature_slid.to_csv(
-        featues_path % (user_charactor, speak_prediction_time),
+        featues_path % (user_charactor, speak_prediction_time, exp_date),
         mode="w",  # 上書き
         index=False,
     )
@@ -136,7 +141,8 @@ def create_csv_labeling_face_by_speak(
     face_data,
     pre_speak_frame,
     user_charactor,
-    speak_prediction_time
+    speak_prediction_time,
+    exp_date
 ):
     """ description
 
@@ -214,8 +220,9 @@ def create_csv_labeling_face_by_speak(
     # csvに書き込み
     df_feature_reindex.to_csv(
         resources.face_feature_csv +
-        "/%s-feature/previous-feature-value/pre-feat_val_%s.csv" % (user_charactor,
-                                                                    speak_prediction_time),
+        "/%s-feature/previous-feature-value/pre-feat_val_%s_%s.csv" % (user_charactor,
+                                                                       speak_prediction_time,
+                                                                       exp_date),
         mode="w",  # 上書き
         # header=False,
         index=False,

@@ -6,6 +6,7 @@ from resources import resources
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 # sklearn
 from sklearn.ensemble import RandomForestClassifier
@@ -22,17 +23,19 @@ class ModelSelection:
     def __init__(self):
         print("Model")
 
-    def set_machine_learning_model(self, user_charactor, speak_prediction_time):
+    def set_machine_learning_model(self, user_charactor, speak_prediction_time, exp_date):
         print("learn_random_forest")
 
         data = dataset.Dataset()
         speak_feature_value = data.load_feature_value(
             user_charactor,
-            speak_prediction_time
+            speak_prediction_time,
+            exp_date
         )
 
         print("\n==================================")
         print(user_charactor)
+        print(exp_date)
         print("==================================\n")
 
         # 目的，説明変数の切り分け
@@ -51,7 +54,9 @@ class ModelSelection:
         # )
 
         # 過去データの訓練データ構築
+        # make_random_forest_model_past_data(user_charactor, X, y)
 
+        # normal split
         make_random_forest_model_timesplit(
             user_charactor,
             X, y
@@ -59,6 +64,7 @@ class ModelSelection:
 
 #
 # 学習モデルの構築（random forest）
+# timesplit normal
 #
 
 
@@ -95,10 +101,20 @@ def make_random_forest_model_timesplit(
         print("非発話のデータ数: %d" % (len(y_test[y_test == 1])))
 
         print("\nアンダーサンプリング後")
-        rus = RandomUnderSampler(random_state=0)
-        X_train_resampled, y_train_resampled = rus.fit_resample(
+        # train_count = y_train[y_train == 0].index
+        # test_count = y_test[y_test == 0].index
+        # train_count_ratio = int(len(train_count) / 4)
+
+        # print(train_count_ratio)
+        # print(len(test_count))
+
+        rus_train = RandomUnderSampler(random_state=0)
+        X_train_resampled, y_train_resampled = rus_train.fit_resample(
             X_train, y_train)
-        X_test_resampled, y_test_resampled = rus.fit_resample(
+
+        # test_strategy = {0: train_count_ratio, 1: train_count_ratio}
+        rus_test = RandomUnderSampler(random_state=0)
+        X_test_resampled, y_test_resampled = rus_test.fit_resample(
             X_test, y_test)
 
         visal_train_sampled = sorted(Counter(y_train_resampled).items())
@@ -140,6 +156,123 @@ def make_random_forest_model_timesplit(
     print(np.mean(score_array))
     print(np.std(score_array))
 
+
+#
+# 学習モデルの構築（random forest）
+# entirety of past data 過去データ丸ごと用いた交差検証
+#
+
+def make_random_forest_model_past_data(
+    user_charactor,
+    X, y
+
+
+):
+    data = dataset.Dataset()
+    # 分割数
+    split = 3
+    result_array = []
+
+    # 過去データ抽出用
+    speak_feature_value = data.load_feature_value(
+        "a",
+        "1w_1s",
+        "20201015-2"
+    )
+
+    # 過去データの目的，説明変数の切り分け
+    y_train_past = speak_feature_value.loc[:, "y_pre_label"]
+    X_train_past = speak_feature_value.loc[:,
+                                           resources.x_variable_feature_colums]
+
+    # 過去データ学習
+    # train_strategy = {0: 455, 1: 455}
+    train_rus = RandomUnderSampler(
+        random_state=0)  # , sampling_strategy=train_strategy)
+    X_past_train_resampled, y_past_train_resampled = train_rus.fit_resample(
+        X_train_past, y_train_past)
+
+    rf_past = RandomForestClassifier(
+        max_depth=3,
+        n_estimators=100,
+        random_state=0
+    ).fit(X_past_train_resampled, y_past_train_resampled)
+
+    # 検証データ
+    n = int(len(y) / split)
+    split_index = list(split_list(y.index.tolist(), n))
+
+    print("---------------")
+
+    for index in range(split):
+        X_test = X.iloc[split_index[index]]
+        y_test = y.iloc[split_index[index]]
+
+        test_strategy = {0: 115, 1: 115}
+        test_rus = RandomUnderSampler(
+            random_state=0, sampling_strategy=test_strategy)
+        X_test_resampled, y_test_resampled = test_rus.fit_resample(
+            X_test, y_test)
+
+        print("全体のデータ数")
+        print("[Train]\n全体 : {}".format(len(y_past_train_resampled.index)))
+        print("[Test]\n全体 : {}\n".format(len(y_test_resampled.index)))
+
+        print("データ割合")
+        # 精度の可視化
+        visal_train_sampled = sorted(Counter(y_past_train_resampled).items())
+        visal_test_sampled = sorted(Counter(y_test_resampled).items())
+        print("[Train]\n発話・非発話　: {}\n".format(visal_train_sampled))
+        print("[Test]\n発話・非発話 : {}".format(visal_test_sampled))
+
+        y_pred = rf_past.predict(X_test_resampled)
+        print("\n[ {} times score ]\n".format(index))
+        print(confusion_matrix(y_test_resampled, y_pred))
+
+        # heatmap
+        # plt.figure()
+        # cm = confusion_matrix(y_test_resampled, y_pred)
+        # sns.heatmap(cm, cmap='Blues_r', annot=True, fmt="d",
+        #             xticklabels=["speak", "non-speak"], yticklabels=["speak", "non-speak"])
+        # plt.savefig('./ml_graph/heatmap/test%s.png' % index)
+        # plt.close('all')
+
+        score_accuracy = round(accuracy_score(y_test_resampled, y_pred), 3)
+        score_recall = round(recall_score(y_test_resampled, y_pred), 3)
+        score_precision = round(precision_score(y_test_resampled, y_pred), 3)
+        score_f1 = round(f1_score(y_test_resampled, y_pred), 3)
+
+        print("\naccuracy: {}".format(score_accuracy))
+        print("recall: {}".format(score_recall))
+        print("precision: {}".format(score_precision))
+        print("F1 score: {}\n".format(score_f1))
+
+        result_array.append(score_f1)
+
+    print("f1_score_array")
+    print(result_array)
+    print("平均精度")
+    print(np.mean(result_array))
+    print(np.std(result_array))
+
+    feature_importance(
+        X_past_train_resampled,
+        rf_past,
+        user_charactor
+    )
+
+
+def split_list(l, n):
+    """
+    リストをサブリストに分割する
+    :param l: リスト
+    :param n: サブリストの要素数
+    :return:
+    """
+    for idx in range(0, len(l), n):
+        yield l[idx:idx + n]
+
+
 #
 # 変数重要度
 #
@@ -147,7 +280,7 @@ def make_random_forest_model_timesplit(
 
 def feature_importance(X_train, rf, user_charactor):
     # 変数重要度
-    print("[Feature Importances]")
+    print("\n[Feature Importances]")
 
     importance = pd.DataFrame(
         {"var": X_train.columns, "importance": rf.feature_importances_}
@@ -179,8 +312,6 @@ def make_random_forest_model(
         X_train, y_train,
         X_test, y_test,
         X, y
-
-
 ):
     max_depth = 3
     n = 10

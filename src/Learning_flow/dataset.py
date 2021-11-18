@@ -40,13 +40,15 @@ class Dataset:
     def load_previous_window_face_data(
         self,
         user_charactor,
-        speak_prediction_time
+        speak_prediction_time,
+        exp_date
     ):
         # csvに読み込み
         df_face = pd.read_csv(
             resources.face_feature_csv +
-            "/%s-feature/previous-feature-value/pre-feat_val_%s.csv" % (user_charactor,
-                                                                        speak_prediction_time),
+            "/%s-feature/previous-feature-value/pre-feat_val_%s_%s.csv" % (user_charactor,
+                                                                           speak_prediction_time,
+                                                                           exp_date),
         )
         return df_face
 
@@ -70,24 +72,24 @@ class Dataset:
 
         """
 
-        print("----- START : oad_speck_txt_data -------")
+        print("----- START : add_speck_txt_data -------")
 
         start_speak = []  # 発話開始時間
         end_speak = []  # 発話終了時間
         speak_label = []  # 発話：x、非発話：s
 
-        # f = open(
-        #     "elan_output_txt/%s.txt" % face_data_path,
-        #     "r",
-        #     encoding="UTF-8"
-        # )
-
-        # TODO: あとで消す
         f = open(
-            "elan_output_txt/test.txt",
+            "elan_output_txt/%s.txt" % face_data_path,
             "r",
             encoding="UTF-8"
         )
+
+        # TODO: あとで消す
+        # f = open(
+        #     "elan_output_txt/test3.txt",
+        #     "r",
+        #     encoding="UTF-8"
+        # )
         array_data = []
         datalines = f.readlines()
         # txt内のデータを1行ずつ読み込み、単語ごとに区切っている
@@ -155,6 +157,7 @@ class Dataset:
         self,
         user_charactor,
         speak_prediction_time,
+        exp_date
     ):
         """ description
 
@@ -171,8 +174,8 @@ class Dataset:
         print("----- START : looad_feature_value --------")
 
         df = pd.read_csv(
-            resources.face_feature_csv + "/%s-feature/feature-value/feat_val_%s.csv"
-            % (user_charactor, speak_prediction_time),
+            resources.face_feature_csv + "/%s-feature/feature-value/feat_val_%s_%s.csv"
+            % (user_charactor, speak_prediction_time, exp_date),
             encoding="utf-8",
         )
         speak_data = pd.DataFrame(df, columns=resources.feature_reindex_colums)

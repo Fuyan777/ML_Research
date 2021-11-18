@@ -33,17 +33,13 @@ def main():
             #     speak_prediction_time[0],
             #     window_size[1],
             #     pre_speak_frame[1],
-            #     user_date
+            #     user_date,
+            #     exp_date[0]
             # )
 
             m = model_selection.ModelSelection()
             m.set_machine_learning_model(
-                user_index, speak_prediction_time[0])
-
-    return
-
-    m = model_selection.ModelSelection()
-    m.set_machine_learning_model(user_charactor[0], speak_prediction_time[0])
+                user_index, speak_prediction_time[0], exp_date[0])
 
 
 def main_data_collection():
