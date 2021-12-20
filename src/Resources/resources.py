@@ -31,8 +31,7 @@ columns_setting_pre_feature_header = [
 # 本来のカラム名と値を合わせる
 
 feature_rolling_colums = [
-    "y",
-    "y_pre_label",
+    "y", "y_pre_label",
     # ave
     "ave_gaze_x",
     "ave_gaze_y",
@@ -202,6 +201,7 @@ feature_reindex_colums = [
 # モデル構築用 カラム
 # 目的変数、説明変数の分離
 x_variable_feature_colums = [
+    "y",
     # gaze_x
     "ave_gaze_x",
     "std_gaze_x",
@@ -282,4 +282,128 @@ x_variable_feature_colums = [
     "med_mouth",
     "skew_mouth",
     "kurt_mouth",
+]
+
+# action unit用
+
+# load colums
+columns_loading_AU = [
+    " timestamp", " AU01_r", " AU02_r", " AU04_r", " AU05_r",
+    " AU06_r", " AU07_r", " AU09_r", " AU10_r", " AU12_r", " AU14_r",
+    " AU15_r", " AU17_r", " AU20_r", " AU23_r", " AU25_r", " AU26_r", " AU45_r"
+]
+
+columns_setting_header_AU = [
+    " AU01_r", " AU02_r", " AU04_r", " AU05_r", " AU06_r",
+    " AU07_r", " AU09_r", " AU10_r", " AU12_r", " AU14_r", " AU15_r",
+    " AU17_r", " AU20_r", " AU23_r", " AU25_r", " AU26_r", " AU45_r"
+]
+
+columns_setting_pre_feature_header_AU = [
+    " AU01_r", " AU02_r", " AU04_r", " AU05_r", " AU06_r",
+    " AU07_r", " AU09_r", " AU10_r", " AU12_r", " AU14_r", " AU15_r",
+    " AU17_r", " AU20_r", " AU23_r", " AU25_r", " AU26_r", " AU45_r", "y", "y_pre_label"
+]
+
+# カラム（出力）
+feature_colums_rolling_AU = [
+    "y", "y_pre_label",
+    # std
+    " AU01_r_std",
+    " AU02_r_std",
+    " AU04_r_std",
+    " AU05_r_std",
+    " AU06_r_std",
+    " AU07_r_std",
+    " AU09_r_std",
+    " AU10_r_std",
+    " AU12_r_std",
+    " AU14_r_std",
+    " AU15_r_std",
+    " AU17_r_std",
+    " AU20_r_std",
+    " AU23_r_std",
+    " AU25_r_std",
+    " AU26_r_std",
+    " AU45_r_std",
+    # max
+    " AU01_r_max",
+    " AU02_r_max",
+    " AU04_r_max",
+    " AU05_r_max",
+    " AU06_r_max",
+    " AU07_r_max",
+    " AU09_r_max",
+    " AU10_r_max",
+    " AU12_r_max",
+    " AU14_r_max",
+    " AU15_r_max",
+    " AU17_r_max",
+    " AU20_r_max",
+    " AU23_r_max",
+    " AU25_r_max",
+    " AU26_r_max",
+    " AU45_r_max",
+    # min
+    " AU01_r_min",
+    " AU02_r_min",
+    " AU04_r_min",
+    " AU05_r_min",
+    " AU06_r_min",
+    " AU07_r_min",
+    " AU09_r_min",
+    " AU10_r_min",
+    " AU12_r_min",
+    " AU14_r_min",
+    " AU15_r_min",
+    " AU17_r_min",
+    " AU20_r_min",
+    " AU23_r_min",
+    " AU25_r_min",
+    " AU26_r_min",
+    " AU45_r_min",
+]
+
+# カラム（入れ替え）
+feature_colums_reindex_AU = [
+    "y_pre_label", "y",
+    " AU01_r_std", " AU01_r_max", " AU01_r_min",
+    " AU02_r_std", " AU02_r_max", " AU02_r_min",
+    " AU04_r_std", " AU04_r_max", " AU04_r_min",
+    " AU05_r_std", " AU05_r_max", " AU05_r_min",
+    " AU06_r_std", " AU06_r_max", " AU06_r_min",
+    " AU07_r_std", " AU07_r_max", " AU07_r_min",
+    " AU09_r_std", " AU09_r_max", " AU09_r_min",
+    " AU10_r_std", " AU10_r_max", " AU10_r_min",
+    " AU12_r_std", " AU12_r_max", " AU12_r_min",
+    " AU14_r_std", " AU14_r_max", " AU14_r_min",
+    " AU15_r_std", " AU15_r_max", " AU15_r_min",
+    " AU17_r_std", " AU17_r_max", " AU17_r_min",
+    " AU20_r_std", " AU20_r_max", " AU20_r_min",
+    " AU23_r_std", " AU23_r_max", " AU23_r_min",
+    " AU25_r_std", " AU25_r_max", " AU25_r_min",
+    " AU26_r_std", " AU26_r_max", " AU26_r_min",
+    " AU45_r_std", " AU45_r_max", " AU45_r_min"
+]
+
+# カラム（入れ替え）
+x_variable_feature_colums_AU = [
+    "y",
+    " AU01_r_std", " AU01_r_max", " AU01_r_min",
+    " AU02_r_std", " AU02_r_max", " AU02_r_min",
+    " AU04_r_std", " AU04_r_max", " AU04_r_min",
+    " AU05_r_std", " AU05_r_max", " AU05_r_min",
+    " AU06_r_std", " AU06_r_max", " AU06_r_min",
+    " AU07_r_std", " AU07_r_max", " AU07_r_min",
+    " AU09_r_std", " AU09_r_max", " AU09_r_min",
+    " AU10_r_std", " AU10_r_max", " AU10_r_min",
+    " AU12_r_std", " AU12_r_max", " AU12_r_min",
+    " AU14_r_std", " AU14_r_max", " AU14_r_min",
+    " AU15_r_std", " AU15_r_max", " AU15_r_min",
+    " AU17_r_std", " AU17_r_max", " AU17_r_min",
+    " AU20_r_std", " AU20_r_max", " AU20_r_min",
+    " AU23_r_std", " AU23_r_max", " AU23_r_min",
+    " AU25_r_std", " AU25_r_max", " AU25_r_min",
+    " AU26_r_std", " AU26_r_max", " AU26_r_min",
+    " AU45_r_std", " AU45_r_max", " AU45_r_min"
 ]

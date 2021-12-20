@@ -1,4 +1,5 @@
 # learning module
+import lightgbm as lgb
 from learning_flow import preprocessing
 from learning_flow import dataset
 from resources import resources
@@ -7,6 +8,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+from IPython.display import display
 
 # sklearn
 from sklearn.ensemble import RandomForestClassifier
@@ -40,31 +42,24 @@ class ModelSelection:
 
         # 目的，説明変数の切り分け
         y = speak_feature_value.loc[:, "y_pre_label"]
-        X = speak_feature_value.loc[:, resources.x_variable_feature_colums]
+        X = speak_feature_value.loc[:,
+                                    resources.x_variable_feature_colums_AU]
 
         print(y)
         print(X)
 
-        # # 学習データ分割
-        # X_train, X_test, y_train, y_test = train_test_split(
-        #     X,
-        #     y,
-        #     test_size=0.3,
-        #     random_state=0
-        # )
-
         # 過去データの訓練データ構築
-        # make_random_forest_model_past_data(user_charactor, X, y)
+        make_random_forest_model_past_data(user_charactor, X, y)
 
-        # normal split
-        make_random_forest_model_timesplit(
-            user_charactor,
-            X, y
-        )
+        # normal timesplit
+        # make_random_forest_model_timesplit(
+        #     user_charactor,
+        #     X, y
+        # )
 
 #
 # 学習モデルの構築（random forest）
-# timesplit normal
+# 時系列交差検証
 #
 
 
@@ -165,8 +160,6 @@ def make_random_forest_model_timesplit(
 def make_random_forest_model_past_data(
     user_charactor,
     X, y
-
-
 ):
     data = dataset.Dataset()
     # 分割数
@@ -175,7 +168,7 @@ def make_random_forest_model_past_data(
 
     # 過去データ抽出用
     speak_feature_value = data.load_feature_value(
-        "a",
+        user_charactor,
         "1w_1s",
         "20201015-2"
     )
@@ -183,12 +176,10 @@ def make_random_forest_model_past_data(
     # 過去データの目的，説明変数の切り分け
     y_train_past = speak_feature_value.loc[:, "y_pre_label"]
     X_train_past = speak_feature_value.loc[:,
-                                           resources.x_variable_feature_colums]
+                                           resources.x_variable_feature_colums_AU]
 
     # 過去データ学習
-    # train_strategy = {0: 455, 1: 455}
-    train_rus = RandomUnderSampler(
-        random_state=0)  # , sampling_strategy=train_strategy)
+    train_rus = RandomUnderSampler(random_state=0)
     X_past_train_resampled, y_past_train_resampled = train_rus.fit_resample(
         X_train_past, y_train_past)
 
@@ -227,26 +218,11 @@ def make_random_forest_model_past_data(
 
         y_pred = rf_past.predict(X_test_resampled)
         print("\n[ {} times score ]\n".format(index))
-        print(confusion_matrix(y_test_resampled, y_pred))
 
-        # heatmap
-        # plt.figure()
-        # cm = confusion_matrix(y_test_resampled, y_pred)
-        # sns.heatmap(cm, cmap='Blues_r', annot=True, fmt="d",
-        #             xticklabels=["speak", "non-speak"], yticklabels=["speak", "non-speak"])
-        # plt.savefig('./ml_graph/heatmap/test%s.png' % index)
-        # plt.close('all')
+        show_confusion_matrix(y_test_resampled, y_pred)
+        show_predict_score(y_test_resampled, y_pred)
 
-        score_accuracy = round(accuracy_score(y_test_resampled, y_pred), 3)
-        score_recall = round(recall_score(y_test_resampled, y_pred), 3)
-        score_precision = round(precision_score(y_test_resampled, y_pred), 3)
         score_f1 = round(f1_score(y_test_resampled, y_pred), 3)
-
-        print("\naccuracy: {}".format(score_accuracy))
-        print("recall: {}".format(score_recall))
-        print("precision: {}".format(score_precision))
-        print("F1 score: {}\n".format(score_f1))
-
         result_array.append(score_f1)
 
     print("f1_score_array")
@@ -260,6 +236,38 @@ def make_random_forest_model_past_data(
         rf_past,
         user_charactor
     )
+
+#
+# 予測結果の表示
+#
+
+
+def show_predict_score(y_test, y_pred):
+    score_accuracy = round(accuracy_score(y_test, y_pred), 3)
+    score_recall = round(recall_score(y_test, y_pred), 3)
+    score_precision = round(precision_score(y_test, y_pred), 3)
+    score_f1 = round(f1_score(y_test, y_pred), 3)
+
+    print("\naccuracy: {}".format(score_accuracy))
+    print("recall: {}".format(score_recall))
+    print("precision: {}".format(score_precision))
+    print("F1 score: {}\n".format(score_f1))
+
+#
+# 混同行列の表示
+#
+
+
+def show_confusion_matrix(y_test, y_pred):
+    tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
+
+    print(confusion_matrix(y_test, y_pred).ravel())
+    print("tp: {}, tn: {}, fp: {}, fn: {}\n".format(tp, tn, fp, fn))
+    print("\n----正しい方---\n")
+
+    confusion_matrix1 = np.array([[tp, fn],
+                                  [fp, tn]])
+    print(confusion_matrix1)
 
 
 def split_list(l, n):
@@ -365,6 +373,41 @@ def make_random_forest_model(
     feature_selection_RFE(rf, X_train, y_train, X, y, n)
 
 
+#
+# 学習モデルの構築（lightgbm）
+#
+
+def make_lightgbm_model(X_train, y_train, X_test, y_test):
+    # データセットを登録
+    lgb_train = lgb.Dataset(X_train, y_train)
+    lgb_test = lgb.Dataset(X_test, y_test, reference=lgb_train)
+
+    # LightGBMのハイパーパラメータを設定
+    params = {
+        "objective": "binary",
+        "metric": "binary_logloss"
+    }
+
+    # 学習の履歴を入れる入物
+    lgb_results = {}
+
+    # lgb_model = lgb.train(params=params,                    # ハイパーパラメータをセット
+    #                       train_set=lgb_train,              # 訓練データを訓練用にセット
+    #                       valid_sets=[lgb_train, lgb_test],  # 訓練データとテストデータをセット
+    #                       valid_names=['Train', 'Test'],    # データセットの名前をそれぞれ設定
+    #                       num_boost_round=5,                # 計算回数
+    #                       early_stopping_rounds=10,         # アーリーストッピング設定
+    #                       evals_result=lgb_results)         # 履歴を保存する
+
+    lgb_model = lgb.LGBMClassifier(max_depth=5)
+    lgb_model.fit(X_train, y_train)
+
+    y_pred = lgb_model.predict(X_test)
+    y_pred = np.where(y_pred > 0.5, 1, 0)
+    print("--------light gbm score-----------")
+    show_predict_score(y_test, y_pred)
+
+
 def show_bar_graph(user_charactor, y, x_label_array):
     x = [1, 2, 3, 4, 5]
 
@@ -415,3 +458,24 @@ def feature_selection_RFE(rf, X_train, y_train, X, y, n):
     print("Average score: {}".format(np.mean(scores)))
 
     print("-------Finish-----------")
+
+
+#
+# 混同行列表示
+#
+
+
+def make_cm(matrix, columns):
+    # matrix numpy配列
+
+    # columns 項目名リスト
+    n = len(columns)
+
+    # '正解データ'をn回繰り返すリスト生成
+    act = ['正解'] * n
+    pred = ['予測'] * n
+
+    # データフレーム生成
+    cm = pd.DataFrame(matrix,
+                      columns=[pred, columns], index=[act, columns])
+    return cm

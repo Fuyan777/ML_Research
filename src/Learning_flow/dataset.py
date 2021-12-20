@@ -53,6 +53,25 @@ class Dataset:
         return df_face
 
     #
+    # ウィンドウ処理前の顔特徴データのローディング
+    #
+
+    def load_previous_window_face_data_AU(
+        self,
+        user_charactor,
+        speak_prediction_time,
+        exp_date
+    ):
+        # csvに読み込み
+        df_face = pd.read_csv(
+            resources.face_feature_csv +
+            "/%s-feature/previous-feature-value/pre-feat_val_%s_%s_AU.csv" % (user_charactor,
+                                                                              speak_prediction_time,
+                                                                              exp_date),
+        )
+        return df_face
+
+    #
     # 発話データのローディング
     #
 
@@ -174,11 +193,12 @@ class Dataset:
         print("----- START : looad_feature_value --------")
 
         df = pd.read_csv(
-            resources.face_feature_csv + "/%s-feature/feature-value/feat_val_%s_%s.csv"
+            resources.face_feature_csv + "/%s-feature/feature-value/feat_val_%s_%s_AU.csv"
             % (user_charactor, speak_prediction_time, exp_date),
             encoding="utf-8",
         )
-        speak_data = pd.DataFrame(df, columns=resources.feature_reindex_colums)
+        speak_data = pd.DataFrame(
+            df, columns=resources.feature_colums_reindex_AU)
 
         # 各クラスのデータ数 確認
         print("y_pre_label: 0")

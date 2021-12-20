@@ -22,7 +22,7 @@ Web会議における予備動作を用いた発話欲求推定手法の実現
 - [マルチメディア，分散，協調とモバイル(DICOMO2021)シンポジウム (2021年6月)](http://tsys.jp/dicomo/program/2E_abst.html#2E-5)
     - タイトル：Web会議における予備動作を用いた発話欲求推定手法の提案
 
-# 内部処理
+# 内部フロー
 
 ## クラス図
 ![speak_prediction](https://user-images.githubusercontent.com/29572313/141080202-dbb13af3-c477-4018-a087-4d390bde0cfc.png)

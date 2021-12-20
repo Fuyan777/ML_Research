@@ -53,6 +53,35 @@ class Preprocessing:
 
         # 発話特性データの抽出
         extraction_speak_feature_by_speak(start_speak, end_speak, speak_label)
+
+        # AU
+        create_csv_labeling_face_by_speak_AU(
+            start_speak,
+            end_speak,
+            speak_label,
+            face_feature_data,
+            pre_speak_frame,
+            user_charactor,
+            speak_prediction_time,
+            exp_date
+        )
+
+        previous_window_face_data = data.load_previous_window_face_data_AU(
+            user_charactor,
+            speak_prediction_time,
+            exp_date
+        )
+
+        extraction_feature_value_AU(
+            previous_window_face_data,
+            window_size,
+            user_charactor,
+            speak_prediction_time,
+            exp_date
+        )
+
+        return
+
         # 顔特徴データのラベリング
         create_csv_labeling_face_by_speak(
             start_speak,
@@ -81,9 +110,9 @@ class Preprocessing:
             exp_date
         )
 
-    #
-    # 特徴量の抽出
-    #
+#
+# 特徴量の抽出（normal）
+#
 
 
 def extraction_feature_value(
@@ -130,9 +159,58 @@ def extraction_feature_value(
 
     print("-------- END : extraction_feature_value ----------")
 
-    #
-    # 発話データをもとに顔特徴データにラベリング
-    #
+#
+# 特徴量の抽出（normal）
+#
+
+
+def extraction_feature_value_AU(
+    df_face,
+    window_size,
+    user_charactor,
+    speak_prediction_time,
+    exp_date
+):
+    """ description
+
+    Parameters
+    ----------
+    df_dace : pandas data of previous window face features data
+    window_size : window size
+    shift_size : overlap window size
+    user_charactor : a, b, c, etc...
+    speak_prediction_time : 0.5s, 1.0s, 2.0, etc...
+
+
+    Returns
+    ----------
+    non(create feature_value csv)
+
+    """
+
+    print("-------- START : extraction_feature_value ----------")
+
+    slide = sliding_window.SlidingWindow()
+    df_feature_slid = slide.run_AU(window_size, df_face)
+
+    # 特徴量をcsvに書き込み
+
+    featues_path = resources.face_feature_csv + \
+        "/%s-feature/feature-value/feat_val_%s_%s_AU.csv"
+    df_feature_slid.to_csv(
+        featues_path % (user_charactor, speak_prediction_time, exp_date),
+        mode="w",  # 上書き
+        index=False,
+    )
+
+    print("***** COMPLETE CREATE CSV FILE (feat-val) *****")
+
+    print("-------- END : extraction_feature_value ----------")
+
+
+#
+# 発話データをもとに顔特徴データにラベリング
+#
 
 
 def create_csv_labeling_face_by_speak(
@@ -209,10 +287,7 @@ def create_csv_labeling_face_by_speak(
     df_header["y_pre_label"] = df_header["y"].shift(-pre_speak_frame)
     df_feature = df_header.dropna()
 
-    print("【ウィンドウ処理前の発話ラベリングデータ】")
-    print("全発話数　: %s" % (len(df_feature)))
-    print("発話数　　: %s" % (len(df_feature[df_feature["y"] == 0])))
-    print("非発話数　: %s" % (len(df_feature[df_feature["y"] == 1])))
+    show_labeling_data_count(df_feature)
 
     df_feature_reindex = df_feature.reindex(
         columns=resources.columns_setting_pre_feature_header
@@ -231,9 +306,81 @@ def create_csv_labeling_face_by_speak(
 
     print("-------- END : create_csv_labeling_face_by_speak ----------\n")
 
-    #
-    # 発話特性の抽出
-    #
+#
+# 発話データをもとに顔特徴データにラベリング（Action Unit用）
+#
+
+
+def create_csv_labeling_face_by_speak_AU(
+    start_time,
+    end_time, label,
+    face_data,
+    pre_speak_frame,
+    user_charactor,
+    speak_prediction_time,
+    exp_date
+):
+    # 誤認識は全て削除
+    face_feature_dropped = face_data[face_data[" success"] == 1]
+    df_face = pd.DataFrame(
+        face_feature_dropped,
+        columns=resources.columns_loading_AU,
+    )
+
+    # train用のheaderにセットしたpandas dataを作成
+    df_header = pd.DataFrame(columns=resources.columns_setting_header_AU)
+    for index in range(len(label)):
+        # 各非発話区間ごとの顔特徴データ
+        ts_df = df_face[
+            (df_face[" timestamp"] >= start_time[index]) &
+            (df_face[" timestamp"] <= end_time[index])
+        ]
+        # 発話 or 非発話　のラベル付け
+        ts_df["y"] = 0 if label[index] == "x" else 1
+        ts_df_feature = ts_df.drop([" timestamp"], axis=1)
+
+        # 少数第三まで
+        df_feature = round(ts_df_feature, 3)
+
+        # 縦に結合
+        df_header = pd.concat([df_header, df_feature])
+
+    # 数秒先をラベリング
+    df_header["y_pre_label"] = df_header["y"].shift(-pre_speak_frame)
+    df_feature = df_header.dropna()
+    show_labeling_data_count(df_feature)
+
+    df_feature_reindex = df_feature.reindex(
+        columns=resources.columns_setting_pre_feature_header_AU
+    )
+    # csvに書き込み
+    df_feature_reindex.to_csv(
+        resources.face_feature_csv +
+        "/%s-feature/previous-feature-value/pre-feat_val_%s_%s_AU.csv" % (user_charactor,
+                                                                          speak_prediction_time,
+                                                                          exp_date),
+        mode="w",  # 上書き
+        index=False,
+    )
+    print("***** COMPLETE CREATE CSV FILE (pre-feat-val) *****")
+
+    print("-------- END : create_csv_labeling_face_by_speak ----------\n")
+
+
+#
+# ラベリングデータ表示
+#
+
+
+def show_labeling_data_count(df_feature):
+    print("【ウィンドウ処理前の発話ラベリングデータ】")
+    print("全発話数　: %s" % (len(df_feature)))
+    print("発話数　　: %s" % (len(df_feature[df_feature["y"] == 0])))
+    print("非発話数　: %s" % (len(df_feature[df_feature["y"] == 1])))
+
+#
+# 発話特性の抽出
+#
 
 
 def extraction_speak_feature_by_speak(start_speak, end_speak, speak_label):
