@@ -1,10 +1,11 @@
 from learning_flow import model_selection
+from learning_flow import model_building
 from learning_flow import preprocessing
 # from data_collection import data_collection
 
 # parameter
 # ["d", "e", "f"]  # ["a", "b", "c"] ["g", "h", "i"]
-user_charactor = ["a"]
+user_charactor = ["b"]
 speak_prediction_time = ["1w_1s"]
 
 # ウィンドウサイズの設定w（0.033 : 0.5秒先=15, 1秒=30, 2秒=60, 3秒=90, 5秒=150 ）
@@ -37,9 +38,16 @@ def main():
             #     exp_date[0]
             # )
 
-            m = model_selection.ModelSelection()
-            m.set_machine_learning_model(
-                user_index, speak_prediction_time[0], exp_date[0])
+            # 特徴量 操作
+            mb = model_building.ModelBuilding()
+            mb.set_building_model(
+                user_index, speak_prediction_time[0], exp_date[0]
+            )
+
+            # m = model_selection.ModelSelection()
+            # m.set_machine_learning_model(
+            #     user_index, speak_prediction_time[0], exp_date[0]
+            # )
 
 
 def main_data_collection():

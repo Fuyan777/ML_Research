@@ -160,7 +160,7 @@ def extraction_feature_value(
     print("-------- END : extraction_feature_value ----------")
 
 #
-# 特徴量の抽出（normal）
+# 特徴量の抽出（AU）
 #
 
 

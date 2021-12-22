@@ -170,7 +170,7 @@ def make_random_forest_model_past_data(
     speak_feature_value = data.load_feature_value(
         user_charactor,
         "1w_1s",
-        "20201015-2"
+        "20201015"
     )
 
     # 過去データの目的，説明変数の切り分け
@@ -199,7 +199,7 @@ def make_random_forest_model_past_data(
         X_test = X.iloc[split_index[index]]
         y_test = y.iloc[split_index[index]]
 
-        test_strategy = {0: 115, 1: 115}
+        test_strategy = {0: 100, 1: 100}
         test_rus = RandomUnderSampler(
             random_state=0, sampling_strategy=test_strategy)
         X_test_resampled, y_test_resampled = test_rus.fit_resample(

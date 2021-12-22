@@ -146,6 +146,9 @@ class Dataset:
 
         print("----- FINISH : load_speck_txt_data -------\n")
 
+        if not replace_list:
+            return (start_speak, end_speak, speak_label)
+
         return (start_speak, end_speak, replace_list)
 
     def load_speck_csv_data(self, face_data_path):
@@ -193,12 +196,91 @@ class Dataset:
         print("----- START : looad_feature_value --------")
 
         df = pd.read_csv(
-            resources.face_feature_csv + "/%s-feature/feature-value/feat_val_%s_%s_AU.csv"
+            resources.face_feature_csv + "/%s-feature/feature-value/feat_val_%s_%s.csv"
             % (user_charactor, speak_prediction_time, exp_date),
             encoding="utf-8",
         )
         speak_data = pd.DataFrame(
-            df, columns=resources.feature_colums_reindex_AU)
+            df, columns=resources.feature_reindex_colums)
+
+        # 各クラスのデータ数 確認
+        print("y_pre_label: 0")
+        print(len(speak_data[speak_data["y_pre_label"] == 0].index))
+        print("y_pre_label: 1")
+        print(len(speak_data[speak_data["y_pre_label"] == 1].index))
+
+        # データをソートしてしまうと時系列処理できなくなるため、一旦そのままを返す
+        return speak_data
+
+        #
+        # 特徴量のロード（AUのみ）
+        #
+
+    def load_feature_value_AU(
+        self,
+        user_charactor,
+        speak_prediction_time,
+        exp_date
+    ):
+        """ description
+
+        Parameters
+        ----------
+        user_charactor
+        speak_prediction_time 
+
+        Returns
+        ----------
+
+        """
+
+        print("----- START : looad_feature_value --------")
+
+        df = pd.read_csv(
+            resources.face_feature_csv + "/%s-feature/feature-value/feat_val_%s_%s_AU.csv"
+            % (user_charactor, speak_prediction_time, exp_date),
+            encoding="utf-8"
+        )
+        speak_data = pd.DataFrame(
+            df, columns=resources.feature_colums_reindex_AU
+        )
+
+        # 各クラスのデータ数 確認
+        print("y_pre_label: 0")
+        print(len(speak_data[speak_data["y_pre_label"] == 0].index))
+        print("y_pre_label: 1")
+        print(len(speak_data[speak_data["y_pre_label"] == 1].index))
+
+        return speak_data
+
+    def load_feature_value_all(
+        self,
+        user_charactor,
+        speak_prediction_time,
+        exp_date,
+        colums
+    ):
+        """ description
+
+        Parameters
+        ----------
+        user_charactor
+        speak_prediction_time 
+
+        Returns
+        ----------
+
+        """
+
+        print("----- START : looad_feature_value --------")
+
+        df = pd.read_csv(
+            resources.face_feature_csv + "/%s-feature/feature-value/feat_val_%s_%s_all.csv"
+            % (user_charactor, speak_prediction_time, exp_date),
+            encoding="utf-8",
+        )
+        speak_data = pd.DataFrame(
+            df, columns=colums)
 
         # 各クラスのデータ数 確認
         print("y_pre_label: 0")
