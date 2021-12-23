@@ -5,7 +5,7 @@ from learning_flow import preprocessing
 
 # parameter
 # ["d", "e", "f"]  # ["a", "b", "c"] ["g", "h", "i"]
-user_charactor = ["b"]
+user_charactor = ["a"]
 speak_prediction_time = ["1w_1s"]
 
 # ウィンドウサイズの設定w（0.033 : 0.5秒先=15, 1秒=30, 2秒=60, 3秒=90, 5秒=150 ）
