@@ -196,7 +196,7 @@ class Dataset:
         print("----- START : looad_feature_value --------")
 
         df = pd.read_csv(
-            resources.face_feature_csv + "/%s-feature/feature-value/feat_val_%s_%s.csv"
+            resources.face_feature_csv + "/%s-feature/feature-value/feat_val_%s%s.csv"
             % (user_charactor, speak_prediction_time, exp_date),
             encoding="utf-8",
         )

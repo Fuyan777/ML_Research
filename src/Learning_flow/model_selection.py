@@ -43,19 +43,19 @@ class ModelSelection:
         # 目的，説明変数の切り分け
         y = speak_feature_value.loc[:, "y_pre_label"]
         X = speak_feature_value.loc[:,
-                                    resources.x_variable_feature_colums_AU]
+                                    resources.x_variable_feature_colums]
 
         print(y)
         print(X)
 
         # 過去データの訓練データ構築
-        make_random_forest_model_past_data(user_charactor, X, y)
+        # make_random_forest_model_past_data(user_charactor, X, y)
 
         # normal timesplit
-        # make_random_forest_model_timesplit(
-        #     user_charactor,
-        #     X, y
-        # )
+        make_random_forest_model_timesplit(
+            user_charactor,
+            X, y
+        )
 
 #
 # 学習モデルの構築（random forest）
@@ -115,7 +115,11 @@ def make_random_forest_model_timesplit(
         visal_train_sampled = sorted(Counter(y_train_resampled).items())
         visal_test_sampled = sorted(Counter(y_test_resampled).items())
         print("[Train]\n発話・非発話　: {}\n".format(visal_train_sampled))
-        print("[Test]\n発話・非発話 : {}".format(visal_test_sampled))
+        print("[Test]\n発話・非発話 : {}\n".format(visal_test_sampled))
+
+        # データ数の合計
+        print("[all]\ntrainデータ数　: %d" % (len(y_train[y_train == 0])*2))
+        print("testデータ数　: %d\n" % (len(y_test[y_test == 0])*2))
 
         # 学習
         rf = RandomForestClassifier(
