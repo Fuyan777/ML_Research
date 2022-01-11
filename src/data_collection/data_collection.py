@@ -9,13 +9,16 @@ class Data_collection:
         print("Data_collection")
 
     def extraction_speak(self):
+        file_group = "g2_20220106"
+        file_path = "f-20220106"
 
         # inaSpeechSegmenter
-        input_file = "/Users/fuyan/Documents/face-audio/c-20201015.wav"
+        input_file = "/Volumes/mac-ssd/movie/converted_data/%s/%s.wav" % (
+            file_group, file_path)
         seg = Segmenter(vad_engine='smn', detect_gender=False)
         segmentation = seg(input_file)
         print(segmentation)
-        seg2csv(segmentation, './elan_output_csv/c-20201015.csv')
+        seg2csv(segmentation, './elan_output_csv/%s.csv' % (file_path))
 
         # for segment in segmentation:
         #     segment_label = segment[0]

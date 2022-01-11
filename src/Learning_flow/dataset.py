@@ -96,6 +96,8 @@ class Dataset:
         start_speak = []  # 発話開始時間
         end_speak = []  # 発話終了時間
         speak_label = []  # 発話：x、非発話：s
+        speak_label_other1 = []  # 他者1の発話状態　発話：x、非発話：s
+        speak_label_other2 = []  # 他者2の発話状態　発話：x、非発話：s
 
         f = open(
             "elan_output_txt/%s.txt" % face_data_path,
@@ -196,12 +198,12 @@ class Dataset:
         print("----- START : looad_feature_value --------")
 
         df = pd.read_csv(
-            resources.face_feature_csv + "/%s-feature/feature-value/feat_val_%s%s.csv"
+            resources.face_feature_csv + "/%s-feature/feature-value/feat_val_%s_%s.csv"
             % (user_charactor, speak_prediction_time, exp_date),
             encoding="utf-8",
         )
         speak_data = pd.DataFrame(
-            df, columns=resources.feature_reindex_colums)
+            df, columns=resources.feature_all_reindex_colums)
 
         # 各クラスのデータ数 確認
         print("y_pre_label: 0")

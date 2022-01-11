@@ -7,6 +7,7 @@ from resources import resources
 import pandas as pd
 import numpy as np
 import warnings
+import time
 
 
 # SettingWithCopyWarningの非表示
@@ -54,34 +55,6 @@ class Preprocessing:
         # 発話特性データの抽出
         extraction_speak_feature_by_speak(start_speak, end_speak, speak_label)
 
-        # AU
-        create_csv_labeling_face_by_speak_AU(
-            start_speak,
-            end_speak,
-            speak_label,
-            face_feature_data,
-            pre_speak_frame,
-            user_charactor,
-            speak_prediction_time,
-            exp_date
-        )
-
-        previous_window_face_data = data.load_previous_window_face_data_AU(
-            user_charactor,
-            speak_prediction_time,
-            exp_date
-        )
-
-        extraction_feature_value_AU(
-            previous_window_face_data,
-            window_size,
-            user_charactor,
-            speak_prediction_time,
-            exp_date
-        )
-
-        return
-
         # 顔特徴データのラベリング
         create_csv_labeling_face_by_speak(
             start_speak,
@@ -109,6 +82,35 @@ class Preprocessing:
             speak_prediction_time,
             exp_date
         )
+
+        return
+
+        # AU
+        create_csv_labeling_face_by_speak_AU(
+            start_speak,
+            end_speak,
+            speak_label,
+            face_feature_data,
+            pre_speak_frame,
+            user_charactor,
+            speak_prediction_time,
+            exp_date
+        )
+
+        previous_window_face_data = data.load_previous_window_face_data_AU(
+            user_charactor,
+            speak_prediction_time,
+            exp_date
+        )
+
+        extraction_feature_value_AU(
+            previous_window_face_data,
+            window_size,
+            user_charactor,
+            speak_prediction_time,
+            exp_date
+        )
+
 
 #
 # 特徴量の抽出（normal）
@@ -141,15 +143,43 @@ def extraction_feature_value(
 
     print("-------- START : extraction_feature_value ----------")
 
+    # 開始
+    start_time = time.perf_counter()
+
     slide = sliding_window.SlidingWindow()
-    df_feature_slid = slide.run(window_size, df_face)
-    print(df_feature_slid)
+    df_feature_slide = slide.run(window_size, df_face)
+    slide_AU = sliding_window.SlidingWindow()
+    df_feature_AU_slide = slide_AU.run_AU(window_size, df_face)
+
+    print("--------slide-------")
+    print(df_feature_slide)
+    print(df_feature_AU_slide)
+    print("---------------")
+
+    df_feature_AU_slide.drop(
+        columns=["y", "y_pre_label"], inplace=True
+    )
+    print("--------df_feature_slide_dropped-------")
+    print(df_feature_AU_slide)
+
+    df_all_data = pd.concat(
+        [df_feature_slide, df_feature_AU_slide], axis=1
+    )
+    print("--------df_all_data-------")
+    print(df_all_data)
+
+    # 修了
+    end_time = time.perf_counter()
+
+    # 経過時間を出力(秒)
+    elapsed_time = end_time - start_time
+    print(elapsed_time)
 
     # 特徴量をcsvに書き込み
 
     featues_path = resources.face_feature_csv + \
         "/%s-feature/feature-value/feat_val_%s_%s.csv"
-    df_feature_slid.to_csv(
+    df_all_data.to_csv(
         featues_path % (user_charactor, speak_prediction_time, exp_date),
         mode="w",  # 上書き
         index=False,
@@ -191,13 +221,13 @@ def extraction_feature_value_AU(
     print("-------- START : extraction_feature_value ----------")
 
     slide = sliding_window.SlidingWindow()
-    df_feature_slid = slide.run_AU(window_size, df_face)
+    df_feature_slide = slide.run(window_size, df_face)
 
     # 特徴量をcsvに書き込み
 
     featues_path = resources.face_feature_csv + \
         "/%s-feature/feature-value/feat_val_%s_%s_AU.csv"
-    df_feature_slid.to_csv(
+    df_feature_slide.to_csv(
         featues_path % (user_charactor, speak_prediction_time, exp_date),
         mode="w",  # 上書き
         index=False,
@@ -246,7 +276,7 @@ def create_csv_labeling_face_by_speak(
     face_feature_dropped = face_data[face_data[" success"] == 1]
     df_face = pd.DataFrame(
         face_feature_dropped,
-        columns=resources.columns_loading,
+        columns=resources.columns_loading_all_feature,
     )
 
     # train用のheaderにセットしたpandas dataを作成
@@ -290,8 +320,9 @@ def create_csv_labeling_face_by_speak(
     show_labeling_data_count(df_feature)
 
     df_feature_reindex = df_feature.reindex(
-        columns=resources.columns_setting_pre_feature_header
+        columns=resources.columns_setting_pre_feature_header_all_feature
     )
+
     # csvに書き込み
     df_feature_reindex.to_csv(
         resources.face_feature_csv +

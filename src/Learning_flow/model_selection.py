@@ -42,8 +42,12 @@ class ModelSelection:
 
         # 目的，説明変数の切り分け
         y = speak_feature_value.loc[:, "y_pre_label"]
+
+        # speak_feature_value.drop(
+        #     resources.x_variable_feature_colums, axis=1
+        # )
         X = speak_feature_value.loc[:,
-                                    resources.x_variable_feature_colums]
+                                    resources.x_variable_feature_all_colums]
 
         print(y)
         print(X)
@@ -133,18 +137,11 @@ def make_random_forest_model_timesplit(
         # 精度の可視化
         y_pred = rf.predict(X_test_resampled)
         print("\n[ {} times score ]\n".format(time_series_cnt))
-        print(confusion_matrix(y_test_resampled, y_pred))
 
-        score_accuracy = round(accuracy_score(y_test_resampled, y_pred), 3)
-        score_recall = round(recall_score(y_test_resampled, y_pred), 3)
-        score_precision = round(precision_score(y_test_resampled, y_pred), 3)
+        show_confusion_matrix(y_test_resampled, y_pred)
+        show_predict_score(y_test_resampled, y_pred)
+
         score_f1 = round(f1_score(y_test_resampled, y_pred), 3)
-
-        print("\naccuracy: {}".format(score_accuracy))
-        print("recall: {}".format(score_recall))
-        print("precision: {}".format(score_precision))
-        print("F1 score: {}\n".format(score_f1))
-
         score_array.append(score_f1)
 
         time_series_cnt += 1
@@ -154,6 +151,12 @@ def make_random_forest_model_timesplit(
     print("平均精度")
     print(np.mean(score_array))
     print(np.std(score_array))
+
+    feature_importance(
+        X_train_resampled,
+        rf,
+        user_charactor
+    )
 
 
 #
