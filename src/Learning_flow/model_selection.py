@@ -46,6 +46,12 @@ class ModelSelection:
         # speak_feature_value.drop(
         #     resources.x_variable_feature_colums, axis=1
         # )
+
+        # 発話有無を抜くかどうか
+        # s = ["isSpeak_other1", "isSpeak_other2"]
+        # speak_feature_value.drop(s, axis=1)
+
+        print(speak_feature_value)
         X = speak_feature_value.loc[:,
                                     resources.x_variable_feature_all_colums]
 
@@ -55,13 +61,15 @@ class ModelSelection:
         # 過去データの訓練データ構築
         # make_random_forest_model_past_data(user_charactor, X, y)
 
+        # holdout
+        # make_random_forest_model_holdout(X, y)
+
         # normal timesplit
         make_random_forest_model_timesplit(
             user_charactor,
             X, y
         )
 
-#
 # 学習モデルの構築（random forest）
 # 時系列交差検証
 #
@@ -158,11 +166,44 @@ def make_random_forest_model_timesplit(
         user_charactor
     )
 
+#
+# random forest model (holdout)
+#
+
+
+def make_random_forest_model_holdout(X, y):
+    print("発話のデータ数")
+    print(len(y[y == 0.0]))
+    X_train, X_test, y_train, y_test = train_test_split(X, y,                  # 訓練データとテストデータに分割する
+                                                        test_size=0.4,       # テストデータの割合
+                                                        shuffle=False,        # シャッフルする
+                                                        random_state=0)
+
+    rus_train = RandomUnderSampler(random_state=0)
+    X_train_resampled, y_train_resampled = rus_train.fit_resample(
+        X_train, y_train)
+
+    rf = RandomForestClassifier(
+        max_depth=3,
+        n_estimators=100,
+        random_state=0
+    ).fit(X_train_resampled, y_train_resampled)
+
+    # test under sampling
+    rus_test = RandomUnderSampler(random_state=0)
+    X_test_resampled, y_test_resampled = rus_test.fit_resample(
+        X_test, y_test)
+
+    # 精度の可視化
+    y_pred = rf.predict(X_test_resampled)
+    show_confusion_matrix(y_test_resampled, y_pred)
+    show_predict_score(y_test_resampled, y_pred)
 
 #
 # 学習モデルの構築（random forest）
 # entirety of past data 過去データ丸ごと用いた交差検証
 #
+
 
 def make_random_forest_model_past_data(
     user_charactor,

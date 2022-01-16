@@ -20,7 +20,7 @@ class Preprocessing:
 
     def extraction_speak_features(
         self,
-        user_charactor,
+        user_charactor, other1_char, other2_char,
         speak_prediction_time,
         window_size,
         pre_speak_frame,
@@ -46,6 +46,12 @@ class Preprocessing:
             end_speak,
             speak_label) = data.load_speck_txt_data(user_date)
 
+        (start_speak1, end_speak1, speak_label1) = data.load_speck_txt_other_user_data(
+            user_date, other1_char)
+
+        (start_speak2, end_speak2, speak_label2) = data.load_speck_txt_other_user_data(
+            user_date, other2_char)
+
         # csvから抽出した顔特徴
         face_feature_data = data.load_face(user_date)
 
@@ -57,9 +63,9 @@ class Preprocessing:
 
         # 顔特徴データのラベリング
         create_csv_labeling_face_by_speak(
-            start_speak,
-            end_speak,
-            speak_label,
+            start_speak, end_speak, speak_label,
+            start_speak1, end_speak1, speak_label1,
+            start_speak2, end_speak2, speak_label2,
             face_feature_data,
             pre_speak_frame,
             user_charactor,
@@ -244,8 +250,9 @@ def extraction_feature_value_AU(
 
 
 def create_csv_labeling_face_by_speak(
-    start_time,
-    end_time, label,
+    start_time, end_time, label,
+    start_time1, end_time1, speak_label1,  # 他者発話ラベル
+    start_time2, end_time2, speak_label2,
     face_data,
     pre_speak_frame,
     user_charactor,
@@ -283,7 +290,7 @@ def create_csv_labeling_face_by_speak(
     df_header = pd.DataFrame(columns=resources.columns_setting_header)
 
     for index in range(len(label)):
-        # 各非発話区間ごとの顔特徴データ
+        # 顔特徴データの対象範囲の指定
         ts_df = df_face[
             (df_face[" timestamp"] >= start_time[index]) &
             (df_face[" timestamp"] <= end_time[index])
@@ -305,6 +312,7 @@ def create_csv_labeling_face_by_speak(
 
         # 発話 or 非発話　のラベル付け
         ts_df["y"] = 0 if label[index] == "x" else 1
+
         ts_df_feature = ts_df.drop([" timestamp", " y_62", " y_66"], axis=1)
 
         # 少数第三まで
@@ -313,14 +321,61 @@ def create_csv_labeling_face_by_speak(
         # 縦に結合
         df_header = pd.concat([df_header, df_feature])
 
+    df_header_other1 = pd.DataFrame()
+    for index in range(len(speak_label1)):
+        ts_df_other1 = df_face[
+            (df_face[" timestamp"] >= start_time1[index]) &
+            (df_face[" timestamp"] <= end_time1[index])
+        ]
+        ts_df_other1["isSpeak_other1"] = 0 if speak_label1[index] == "speech" else 1
+        is_speak_other1 = ts_df_other1["isSpeak_other1"]
+        # 縦に結合
+        df_header_other1 = pd.concat(
+            [df_header_other1, is_speak_other1], axis=0)
+    df_header_other1.columns = ["isSpeak_other1"]
+
+    df_header_other2 = pd.DataFrame()
+    for index in range(len(speak_label2)):
+        ts_df_other2 = df_face[
+            (df_face[" timestamp"] >= start_time2[index]) &
+            (df_face[" timestamp"] <= end_time2[index])
+        ]
+        ts_df_other2["isSpeak_other2"] = 0 if speak_label2[index] == "speech" else 1
+        is_speak_other2 = ts_df_other2["isSpeak_other2"]
+        # 縦に結合
+        df_header_other2 = pd.concat(
+            [df_header_other2, is_speak_other2], axis=0)
+    df_header_other2.columns = ["isSpeak_other2"]
+
     # 数秒先をラベリング
     df_header["y_pre_label"] = df_header["y"].shift(-pre_speak_frame)
-    df_feature = df_header.dropna()
+
+    df_header_all = pd.DataFrame(
+        df_header,
+        columns=resources.columns_setting_pre_feature_header_all_feature
+    )
+
+    print(df_header_all)
+    print(df_header_other2)
+
+    print(df_header_all.join(df_header_other1))
+    df_joined = df_header_all.join([df_header_other1, df_header_other2])
+
+    df_joined[df_joined["isSpeak_other1"].isna() == True] = 1
+    df_joined[df_joined["isSpeak_other2"].isna() == True] = 1
+
+    # 全ての発話状態を横結合
+    # df_header_all = pd.concat([df_header, df_header_other1], axis="columns")
+
+    df_feature = df_joined.dropna()
 
     show_labeling_data_count(df_feature)
 
+    # TODO: 後で消す
+    print(df_feature)
+
     df_feature_reindex = df_feature.reindex(
-        columns=resources.columns_setting_pre_feature_header_all_feature
+        columns=resources.columns_setting_pre_feature_header_all_feature_re
     )
 
     # csvに書き込み
@@ -350,6 +405,8 @@ def create_csv_labeling_face_by_speak_AU(
     user_charactor,
     speak_prediction_time,
     exp_date
+
+
 ):
     # 誤認識は全て削除
     face_feature_dropped = face_data[face_data[" success"] == 1]

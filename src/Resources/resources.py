@@ -15,7 +15,8 @@ columns_loading_all_feature = [
     " pose_Ry", " pose_Rz", " y_62", " y_66",
     " AU01_r", " AU02_r", " AU04_r", " AU05_r",
     " AU06_r", " AU07_r", " AU09_r", " AU10_r", " AU12_r", " AU14_r",
-    " AU15_r", " AU17_r", " AU20_r", " AU23_r", " AU25_r", " AU26_r", " AU45_r"
+    " AU15_r", " AU17_r", " AU20_r", " AU23_r", " AU25_r", " AU26_r", " AU45_r",
+    "isSpeak_other1", "isSpeak_other2"
 ]
 
 columns_setting_header_all_feature = [
@@ -32,7 +33,17 @@ columns_setting_pre_feature_header_all_feature = [
     " pose_Rz", "mouth",
     " AU01_r", " AU02_r", " AU04_r", " AU05_r", " AU06_r",
     " AU07_r", " AU09_r", " AU10_r", " AU12_r", " AU14_r", " AU15_r",
-    " AU17_r", " AU20_r", " AU23_r", " AU25_r", " AU26_r", " AU45_r", "y", "y_pre_label"
+    " AU17_r", " AU20_r", " AU23_r", " AU25_r", " AU26_r", " AU45_r", "y", "y_pre_label",
+]
+
+columns_setting_pre_feature_header_all_feature_re = [
+    " gaze_angle_x", " gaze_angle_y", "gaze_angle_hypo",
+    " pose_Tx", " pose_Ty", " pose_Tz", " pose_Rx", " pose_Ry",
+    " pose_Rz", "mouth",
+    " AU01_r", " AU02_r", " AU04_r", " AU05_r", " AU06_r",
+    " AU07_r", " AU09_r", " AU10_r", " AU12_r", " AU14_r", " AU15_r",
+    " AU17_r", " AU20_r", " AU23_r", " AU25_r", " AU26_r", " AU45_r", "y", "y_pre_label",
+    "isSpeak_other1", "isSpeak_other2"
 ]
 
 # index変換用 カラム
@@ -136,7 +147,12 @@ feature_all_reindex_colums = [
     "AU23_r_std", "AU23_r_max", "AU23_r_min",
     "AU25_r_std", "AU25_r_max", "AU25_r_min",
     "AU26_r_std", "AU26_r_max", "AU26_r_min",
-    "AU45_r_std", "AU45_r_max", "AU45_r_min"
+    "AU45_r_std", "AU45_r_max", "AU45_r_min",
+    # other_speak_status
+    "isSpeak_other1",
+    "nonSpeak_other1", "startSpeak_other1", "speaking_other1", "endSpeak_other1",
+    "isSpeak_other2",
+    "nonSpeak_other2", "startSpeak_other2", "speaking_other2", "endSpeak_other2"
 ]
 
 x_variable_feature_all_colums = [
@@ -238,7 +254,12 @@ x_variable_feature_all_colums = [
     "AU23_r_std", "AU23_r_max", "AU23_r_min",
     "AU25_r_std", "AU25_r_max", "AU25_r_min",
     "AU26_r_std", "AU26_r_max", "AU26_r_min",
-    "AU45_r_std", "AU45_r_max", "AU45_r_min"
+    "AU45_r_std", "AU45_r_max", "AU45_r_min",
+    # other_speak_status
+    "isSpeak_other1",
+    "nonSpeak_other1", "startSpeak_other1", "speaking_other1", "endSpeak_other1",
+    "isSpeak_other2",
+    "nonSpeak_other2", "startSpeak_other2", "speaking_other2", "endSpeak_other2"
 ]
 
 
@@ -347,6 +368,13 @@ feature_rolling_colums = [
     "kurt_pose_Ry",
     "kurt_pose_Rz",
     "kurt_mouth",
+    # isSpeak
+    "isSpeak_other1", "isSpeak_other2",
+    # speak status
+    "nonSpeak_other1", "nonSpeak_other2",
+    "startSpeak_other1", "startSpeak_other2",
+    "speaking_other1", "speaking_other2",
+    "endSpeak_other1", "endSpeak_other2"
 ]
 
 # index変換用 カラム
@@ -433,6 +461,11 @@ feature_reindex_colums = [
     "med_mouth",
     "skew_mouth",
     "kurt_mouth",
+    # isSpeak & speak status
+    "isSpeak_other1",
+    "nonSpeak_other1", "startSpeak_other1", "speaking_other1", "endSpeak_other1",
+    "isSpeak_other2",
+    "nonSpeak_other2", "startSpeak_other2", "speaking_other2", "endSpeak_other2"
 ]
 
 

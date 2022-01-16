@@ -1,3 +1,4 @@
+import re
 from resources import resources
 import pandas as pd
 
@@ -96,8 +97,6 @@ class Dataset:
         start_speak = []  # 発話開始時間
         end_speak = []  # 発話終了時間
         speak_label = []  # 発話：x、非発話：s
-        speak_label_other1 = []  # 他者1の発話状態　発話：x、非発話：s
-        speak_label_other2 = []  # 他者2の発話状態　発話：x、非発話：s
 
         f = open(
             "elan_output_txt/%s.txt" % face_data_path,
@@ -105,13 +104,7 @@ class Dataset:
             encoding="UTF-8"
         )
 
-        # TODO: あとで消す
-        # f = open(
-        #     "elan_output_txt/test3.txt",
-        #     "r",
-        #     encoding="UTF-8"
-        # )
-        array_data = []
+        array_data = []  # 処理用
         datalines = f.readlines()
         # txt内のデータを1行ずつ読み込み、単語ごとに区切っている
         for data in datalines:
@@ -152,6 +145,36 @@ class Dataset:
             return (start_speak, end_speak, speak_label)
 
         return (start_speak, end_speak, replace_list)
+
+    #
+    # 発話データのローディング（他者用）
+    #
+    def load_speck_txt_other_user_data(self, face_data_path, user):
+        start_speak = []  # 発話開始時間
+        end_speak = []  # 発話終了時間
+        # 要素はアルファベット順で並べる
+        speak_label1 = []  # 他者1の発話状態　発話：x、非発話：s
+
+        f = open(
+            "elan_output_txt/%s-%s.txt" % (face_data_path, user),
+            "r",
+            encoding="UTF-8"
+        )
+
+        array_data = []  # 処理用
+        datalines = f.readlines()
+        # txt内のデータを1行ずつ読み込み、単語ごとに区切っている
+        for data in datalines:
+            array_data.append(data.split())
+
+        f.close()
+
+        for speak in array_data:
+            start_speak.append(float(speak[0]))
+            end_speak.append(float(speak[1]))
+            speak_label1.append(speak[2])
+
+        return (start_speak, end_speak, speak_label1)
 
     def load_speck_csv_data(self, face_data_path):
         """ description
