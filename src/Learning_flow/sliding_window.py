@@ -7,6 +7,8 @@ from resources import resources
 # external module
 import numpy as np
 import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 feature_list = [
     " gaze_angle_x",
@@ -288,7 +290,40 @@ class SlidingWindow():
         )
         return df_reindex
 
-# sliding window method
+    # window内のAUの出現頻度をカウント
+    def count_au_in_window(self,
+                           window_size,
+                           df_feature_value):
+        # overlapの計算
+        shift_size = (window_size // 2) - 1
+        fig, ax = plt.subplots(figsize=(12, 9))
+        plt.title('AU Correlation in Web Conferencing')
+        # 相関行列を計算
+        df_corr = df_feature_value[feature_list_AU].corr()
+        print(df_corr)
+        sns.heatmap(df_corr, square=True, vmax=1,
+                    vmin=-1, center=0, linewidths=.5)
+        plt.savefig(
+            "/Users/fuyan/LocalDocs/ml-research/ml_graph/heatmap/au_heatmap.png")
+
+        # 1つのウィンドウを抽出
+        df_au = (
+            df_feature_value[feature_list_AU]
+            .shift(shift_size)
+            .rolling(window_size, min_periods=1)
+            .apply(count_other_au)
+        )
+        print("出現頻度の個数")
+        print(df_au)
+        convert_df_to_csv("/Users/fuyan/LocalDocs/ml-research/table/h-20220105_au_count_df.csv",
+                          df_au)
+
+        print("基本統計")
+        # print(df_feature_value[feature_list_AU].describe())
+        # convert_df_to_csv("/Users/fuyan/LocalDocs/ml-research/table/h-20220105_au_describe.csv",
+        #                   df_feature_value[feature_list_AU].describe())
+
+    # sliding window method
 
 
 def judge_speak_mean(array_value):
@@ -388,3 +423,21 @@ def judge_endSpeak(array_value):
         return 1
     else:
         return 0
+
+
+def count_other_au(array_value):
+    # series内列ごとにの0より大きい値をカウント
+    if any(array_value.isin([np.nan])):
+        return 0
+
+    # print(array_value)
+    # print((array_value > 0).sum())
+    return (array_value > 0).sum()
+
+
+def convert_df_to_csv(path, df):
+    df.to_csv(
+        path,
+        mode="w",  # 上書き
+        index=True,
+    )

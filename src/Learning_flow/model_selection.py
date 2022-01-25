@@ -43,13 +43,18 @@ class ModelSelection:
         # 目的，説明変数の切り分け
         y = speak_feature_value.loc[:, "y_pre_label"]
 
+        # 特徴量を抜くか否か
         # speak_feature_value.drop(
         #     resources.x_variable_feature_colums, axis=1
         # )
-
-        # 発話有無を抜くかどうか
-        # s = ["isSpeak_other1", "isSpeak_other2"]
-        # speak_feature_value.drop(s, axis=1)
+        speak_feature_value.drop(
+            resources.x_variable_feature_colums_AU, axis=1
+        )
+        s = ["isSpeak_other1",
+             "nonSpeak_other1", "startSpeak_other1", "speaking_other1", "endSpeak_other1",
+             "isSpeak_other2",
+             "nonSpeak_other2", "startSpeak_other2", "speaking_other2", "endSpeak_other2"]
+        speak_feature_value.drop(s, axis=1)
 
         print(speak_feature_value)
         X = speak_feature_value.loc[:,
@@ -58,17 +63,20 @@ class ModelSelection:
         print(y)
         print(X)
 
-        # 過去データの訓練データ構築
-        # make_random_forest_model_past_data(user_charactor, X, y)
-
-        # holdout
-        # make_random_forest_model_holdout(X, y)
+        if user_charactor == "d":
+            # holdout
+            make_random_forest_model_holdout(X, y)
+            return
 
         # normal timesplit
         make_random_forest_model_timesplit(
             user_charactor,
-            X, y
+            X, y,
+            exp_date
         )
+
+        # 過去データの訓練データ構築
+        # make_random_forest_model_past_data(user_charactor, X, y)
 
 # 学習モデルの構築（random forest）
 # 時系列交差検証
@@ -77,13 +85,14 @@ class ModelSelection:
 
 def make_random_forest_model_timesplit(
     user_charactor,
-    X, y
+    X, y,
+    user_date
 ):
     # スコアの保持
     score_array = []
 
     # TimeSeriesSplit cross validation
-    tscv = TimeSeriesSplit(n_splits=5)
+    tscv = TimeSeriesSplit(n_splits=3)
     time_series_cnt = 0
 
     for train_index, test_index in tscv.split(X):
@@ -163,7 +172,8 @@ def make_random_forest_model_timesplit(
     feature_importance(
         X_train_resampled,
         rf,
-        user_charactor
+        user_charactor,
+        user_date
     )
 
 #
@@ -334,7 +344,7 @@ def split_list(l, n):
 #
 
 
-def feature_importance(X_train, rf, user_charactor):
+def feature_importance(X_train, rf, user_charactor, user_date):
     # 変数重要度
     print("\n[Feature Importances]")
 
@@ -354,7 +364,8 @@ def feature_importance(X_train, rf, user_charactor):
     show_bar_graph(
         user_charactor,
         feature_importance["importance"].values,
-        feature_importance["var"].values
+        feature_importance["var"].values,
+        user_date
     )
 
 
@@ -456,7 +467,7 @@ def make_lightgbm_model(X_train, y_train, X_test, y_test):
     show_predict_score(y_test, y_pred)
 
 
-def show_bar_graph(user_charactor, y, x_label_array):
+def show_bar_graph(user_charactor, y, x_label_array, user_date):
     x = [1, 2, 3, 4, 5]
 
     fig_bar_graph = plt.figure(figsize=(5, 4))
@@ -469,8 +480,8 @@ def show_bar_graph(user_charactor, y, x_label_array):
     # plt.show()
     fig_bar_graph.savefig(
         resources.path +
-        "ml_graph/feature_importance/{}_importance_bar_graph.png".format(
-            user_charactor)
+        "ml_graph/feature_importance/i_importance.png".format(
+            user_charactor, user_charactor, user_date)
     )
 
 

@@ -5,9 +5,9 @@ from learning_flow import preprocessing
 
 # parameter
 # ["d", "e", "f"]  # ["a", "b", "c"] ["g", "h", "i"]
-user_charactor = ["f"]
-other1_char = "d"
-other2_char = "e"
+user_charactor = ["h"]
+other1_char = "g"
+other2_char = "i"
 speak_prediction_time = ["1w_1s"]
 
 # ウィンドウサイズの設定w（0.033 : 0.5秒先=15, 1秒=30, 2秒=60, 3秒=90, 5秒=150 ）
@@ -18,8 +18,8 @@ window_size_big = [6, 12, 24, 36, 60]
 # 予測フレームシフトの設定s（ 0.5秒先=6, 1秒=12, 2秒=24, 3秒=36, 5秒=60 ）
 pre_speak_frame = [6, 12, 24, 36, 60]
 # all: 全て含めたデータ
-# abc: 20210128, ghi: 20210615
-exp_date = ["20220106"]
+# abc: 20210128, def: 20220106 ghi: 20210615, 20220105
+exp_date = ["20220105"]
 
 
 def main():
@@ -33,14 +33,14 @@ def main():
         for date in exp_date:
             user_date = user_index + "-" + date
 
-            # pre.extraction_speak_features(
-            #     user_index, other1_char, other2_char,
-            #     speak_prediction_time[0],
-            #     window_size[1],
-            #     pre_speak_frame[1],
-            #     user_date,
-            #     exp_date[0]
-            # )
+            pre.extraction_speak_features(
+                user_index, other1_char, other2_char,
+                speak_prediction_time[0],
+                window_size[1],
+                pre_speak_frame[1],
+                user_date,
+                exp_date[0]
+            )
 
             # 特徴量 操作
             # mb = model_building.ModelBuilding()
@@ -48,17 +48,11 @@ def main():
             #     user_index, speak_prediction_time[0], exp_date[0]
             # )
 
-            m = model_selection.ModelSelection()
-            m.set_machine_learning_model(
-                user_index, speak_prediction_time[0], exp_date[0]
-            )
-
-
-def main_data_collection():
-    d = data_collection.Data_collection()
-    d.extraction_speak()
+            # m = model_selection.ModelSelection()
+            # m.set_machine_learning_model(
+            #     user_index, speak_prediction_time[0], exp_date[0]
+            # )
 
 
 if __name__ == "__main__":
     main()
-    # main_data_collection()

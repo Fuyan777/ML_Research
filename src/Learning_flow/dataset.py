@@ -149,14 +149,14 @@ class Dataset:
     #
     # 発話データのローディング（他者用）
     #
-    def load_speck_txt_other_user_data(self, face_data_path, user):
+    def load_speck_txt_other_user_data(self, exp_date, user):
         start_speak = []  # 発話開始時間
         end_speak = []  # 発話終了時間
         # 要素はアルファベット順で並べる
         speak_label1 = []  # 他者1の発話状態　発話：x、非発話：s
 
         f = open(
-            "elan_output_txt/%s-%s.txt" % (face_data_path, user),
+            "elan_output_txt/%s-%s.txt" % (user, exp_date),
             "r",
             encoding="UTF-8"
         )

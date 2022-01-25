@@ -1,4 +1,6 @@
 # learning module
+import matplotlib.patches as mpatches
+from curses import window
 from learning_flow import dataset
 from learning_flow import sliding_window
 from resources import resources
@@ -8,6 +10,7 @@ import pandas as pd
 import numpy as np
 import warnings
 import time
+import matplotlib.pyplot as plt
 
 
 # SettingWithCopyWarningの非表示
@@ -47,10 +50,10 @@ class Preprocessing:
             speak_label) = data.load_speck_txt_data(user_date)
 
         (start_speak1, end_speak1, speak_label1) = data.load_speck_txt_other_user_data(
-            user_date, other1_char)
+            exp_date, other1_char)
 
         (start_speak2, end_speak2, speak_label2) = data.load_speck_txt_other_user_data(
-            user_date, other2_char)
+            exp_date, other2_char)
 
         # csvから抽出した顔特徴
         face_feature_data = data.load_face(user_date)
@@ -153,6 +156,8 @@ def extraction_feature_value(
     start_time = time.perf_counter()
 
     slide = sliding_window.SlidingWindow()
+    slide.count_au_in_window(window_size, df_face)
+
     df_feature_slide = slide.run(window_size, df_face)
     slide_AU = sliding_window.SlidingWindow()
     df_feature_AU_slide = slide_AU.run_AU(window_size, df_face)
@@ -355,6 +360,10 @@ def create_csv_labeling_face_by_speak(
         columns=resources.columns_setting_pre_feature_header_all_feature
     )
 
+    # print(df_header_all["y"])
+    # show_au_time(df_face)
+    # return
+
     print(df_header_all)
     print(df_header_other2)
 
@@ -370,9 +379,6 @@ def create_csv_labeling_face_by_speak(
     df_feature = df_joined.dropna()
 
     show_labeling_data_count(df_feature)
-
-    # TODO: 後で消す
-    print(df_feature)
 
     df_feature_reindex = df_feature.reindex(
         columns=resources.columns_setting_pre_feature_header_all_feature_re
@@ -515,3 +521,100 @@ def show_recognition_success_rate(face_feature):
     print("【認識成功率】")
     print("成功率　　　: %s" % (success_count / all_count))
     print("失敗率　　　: %s" % (failuree_count / all_count))
+
+
+def show_au_time(df):
+    df_au = df[feature_au_list]
+    print("df_au")
+    print(df_au)
+
+    # xminの抽出
+    print(df_au.at[1, " timestamp"])
+    xwidth = df_au.at[1, " timestamp"]
+
+    fig, ax = plt.subplots(figsize=(11, 6))
+
+    # 目盛りの生成処理
+    for j in range(len(au_id)):
+        range_0_list = []  # 0の時
+        range_0to1_list = []  # 0以上1未満
+        range_1to2_list = []  # 1以上2未満
+        range_2to3_list = []  # 2以上3未満
+        range_3to4_list = []  # 3以上4未満
+        range_4to5_list = []  # 4以上5未満
+
+        list_df = df[feature_au[j]].values
+        list_time = df[" timestamp"].values
+
+        for i in range(len(df)):
+            if list_df[i] > 0.0 and list_df[i] < 1.0:
+                range_0to1_list.append((list_time[i], xwidth))
+            elif list_df[i] > 1.0 and list_df[i] < 2.0:
+                range_1to2_list.append((list_time[i], xwidth))
+            elif list_df[i] > 2.0 and list_df[i] < 3.0:
+                range_2to3_list.append((list_time[i], xwidth))
+            elif list_df[i] > 3.0 and list_df[i] < 4.0:
+                range_3to4_list.append((list_time[i], xwidth))
+            elif list_df[i] > 4.0 and list_df[i] < 5.0:
+                range_4to5_list.append((list_time[i], xwidth))
+            else:
+                range_0_list.append((list_time[i], xwidth))
+
+        make_broken_barh(ax, range_0_list, j, color[0])
+        make_broken_barh(ax, range_0to1_list, j, color[1])
+        make_broken_barh(ax, range_1to2_list, j, color[2])
+        make_broken_barh(ax, range_2to3_list, j, color[3])
+        make_broken_barh(ax, range_3to4_list, j, color[4])
+        make_broken_barh(ax, range_4to5_list, j, color[5])
+
+    # 値の範囲
+    ax.set_ylim(0, 34)
+    ax.set_xlim(5, 6)
+    ax.set_xlabel('meeting time [second]')
+    ax.set_ylabel('Action Unit')
+    # yの目盛り軸
+    ax.set_yticks(au_ticks)
+    ax.set_yticklabels(au_id)
+    for i in range(len(au_ticks)):
+        ax.axhline(au_ticks[i] + 1, linewidth=0.5, color="black")
+
+    red_patch = mpatches.Patch(color=color[0], label='0')
+    red_patch1 = mpatches.Patch(color=color[1], label='0.1-0.9')
+    red_patch2 = mpatches.Patch(color=color[2], label='1.0-1.9')
+    red_patch3 = mpatches.Patch(color=color[3], label='2.0-2.9')
+    red_patch4 = mpatches.Patch(color=color[4], label='3.0-3.9')
+    red_patch5 = mpatches.Patch(color=color[5], label='4.0-5.0')
+
+    collection = collections.BrokenBarHCollection.span_where(
+        t, ymin=-1, ymax=0, where=s1 < 0, facecolor='red', alpha=0.5)
+    ax.add_collection(collection)
+
+    ax.legend(handles=[red_patch, red_patch1, red_patch2,
+              red_patch3, red_patch4, red_patch5], loc='upper left', bbox_to_anchor=(1, 1))
+    plt.savefig(
+        "/Users/fuyan/LocalDocs/ml-research/ml_graph/time_au_visual/h_user/h-20220105_5to6.png")
+    print("end image")
+
+    # plt.show()
+
+
+def make_broken_barh(ax, range_list, index, color):
+    ax.broken_barh(range_list, (2*index, 2), facecolors=(color))
+
+
+feature_au_list = [" timestamp", " AU01_r", " AU02_r", " AU04_r", " AU05_r", " AU06_r",
+                   " AU07_r", " AU09_r", " AU10_r", " AU12_r", " AU14_r", " AU15_r",
+                   " AU17_r", " AU20_r", " AU23_r", " AU25_r", " AU26_r", " AU45_r"]
+
+feature_au = [" AU01_r", " AU02_r", " AU04_r", " AU05_r", " AU06_r",
+              " AU07_r", " AU09_r", " AU10_r", " AU12_r", " AU14_r", " AU15_r",
+              " AU17_r", " AU20_r", " AU23_r", " AU25_r", " AU26_r", " AU45_r"]
+
+au_id = ["AU01", "AU02", "AU04", "AU05", "AU06",
+         "AU07", "AU09", "AU10", "AU12", "AU14", "AU15",
+         "AU17", "AU20", "AU23", "AU25", "AU26", "AU45"]
+
+au_ticks = [1, 3, 5, 7, 9, 11, 13, 15, 17, 19,
+            21, 23, 25, 27, 29, 31, 33]
+
+color = ["lightgray", "peachpuff", "orange", "red", "darkred", "black"]
