@@ -1,0 +1,29 @@
+******* all/ *******
+
+■ sample
+class 0: 294
+all    : 588
+
+■ score
+f_score list: [0.63636364 0.6504065  0.81355932 0.61313869 0.57333333]
+Average score(F-measure): 0.657
+
+precision list: [0.51578947 0.625      0.81355932 0.53164557 0.47252747]
+Average score(precision): 0.592
+
+recall list: [0.83050847 0.6779661  0.81355932 0.72413793 0.72881356]
+Average score(recall): 0.755
+
+■ feature importance
+
+var     importance
+AU10_r_max   0.07406
+AU25_r_max   0.05956
+max_mouth   0.05108
+AU25_r_std   0.04232
+AU10_r_min   0.04136
+med_mouth   0.03466
+AU15_r_max   0.03097
+AU15_r_std   0.03087
+AU06_r_max   0.0274
+min_pose_Rx   0.02595

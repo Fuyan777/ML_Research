@@ -1,0 +1,29 @@
+******* macro+speak_status/ *******
+
+■ sample
+class 0: 462
+all    : 924
+
+■ score
+f_score list: [0.78571429 0.62882096 0.81481481 0.57254902 0.62780269]
+Average score(F-measure): 0.686
+
+precision list: [0.86842105 0.52554745 0.80208333 0.45061728 0.53435115]
+Average score(precision): 0.636
+
+recall list: [0.7173913  0.7826087  0.82795699 0.78494624 0.76086957]
+Average score(recall): 0.775
+
+■ feature importance
+
+var     importance
+med_mouth   0.14925
+max_mouth   0.09769
+ave_mouth   0.09759
+min_mouth   0.09355
+med_gaze_y   0.04707
+ave_pose_Rx   0.03693
+min_gaze_y   0.03367
+ave_pose_Ty   0.03126
+med_pose_Rx   0.0298
+min_pose_Ty   0.0221

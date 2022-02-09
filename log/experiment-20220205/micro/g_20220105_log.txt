@@ -1,0 +1,29 @@
+******* micro/ *******
+
+■ sample
+class 0: 174
+all    : 348
+
+■ score
+f_score list: [0.79452055 0.79487179 0.64646465 0.75609756 0.78571429]
+Average score(F-measure): 0.756
+
+precision list: [0.76315789 0.72093023 0.5        0.64583333 0.67346939]
+Average score(precision): 0.661
+
+recall list: [0.82857143 0.88571429 0.91428571 0.91176471 0.94285714]
+Average score(recall): 0.897
+
+■ feature importance
+
+var     importance
+AU25_r_max   0.1509
+AU25_r_std   0.0868
+AU10_r_max   0.08345
+AU12_r_max   0.06196
+AU06_r_max   0.06183
+AU07_r_std   0.04773
+AU12_r_std   0.04394
+AU14_r_std   0.0391
+AU17_r_std   0.03675
+AU10_r_min   0.03651

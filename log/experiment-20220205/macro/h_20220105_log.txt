@@ -1,0 +1,29 @@
+******* macro/ *******
+
+■ sample
+class 0: 462
+all    : 924
+
+■ score
+f_score list: [0.76923077 0.69902913 0.79787234 0.58365759 0.66028708]
+Average score(F-measure): 0.702
+
+precision list: [0.84415584 0.63157895 0.78947368 0.45731707 0.58974359]
+Average score(precision): 0.662
+
+recall list: [0.70652174 0.7826087  0.80645161 0.80645161 0.75      ]
+Average score(recall): 0.77
+
+■ feature importance
+
+var     importance
+max_mouth   0.16305
+ave_mouth   0.14855
+min_mouth   0.11623
+med_mouth   0.09261
+min_pose_Rx   0.03419
+min_gaze_y   0.03396
+med_pose_Rx   0.03202
+max_pose_Rx   0.03002
+min_pose_Ty   0.02599
+ave_pose_Rx   0.02574

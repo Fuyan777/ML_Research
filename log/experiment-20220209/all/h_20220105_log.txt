@@ -1,0 +1,33 @@
+******* all/ *******
+
+■ sample
+class 0: 462
+all    : 924
+
+■ confusion matrix
+[ 336 126 ]
+[ 175 287 ]
+
+■ score
+f_score list: [0.64974619 0.77456647 0.71794872 0.61276596 0.7283237 ]
+Average score(F-measure): 0.697
+
+precision list: [0.60952381 0.82716049 0.68627451 0.50704225 0.77777778]
+Average score(precision): 0.682
+
+recall list: [0.69565217 0.72826087 0.75268817 0.77419355 0.68478261]
+Average score(recall): 0.727
+
+■ feature importance
+
+var     importance
+AU25_r_max   0.09517
+AU25_r_std   0.07932
+AU25_r_p75   0.07696
+max_mouth   0.07151
+ave_mouth   0.06354
+AU17_r_max   0.0574
+AU25_r_p25   0.03323
+AU17_r_p75   0.03078
+AU17_r_median   0.03066
+AU25_r_median   0.02452

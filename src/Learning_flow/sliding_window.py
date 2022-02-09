@@ -261,6 +261,31 @@ class SlidingWindow():
             .apply(judge_speak_min),
             3,
         )
+        print("=========ウィンドウ処理（median）==============")
+        df_median = round(
+            df_feature_value[feature_list_AU]
+            .shift(shift_size)
+            .rolling(window_size, min_periods=1)
+            .apply(judge_speak_median),
+            3,
+        )
+        print("=========ウィンドウ処理（p25）==============")
+        df_p25 = round(
+            df_feature_value[feature_list_AU]
+            .shift(shift_size)
+            .rolling(window_size, min_periods=1)
+            .apply(judge_speak_p25),
+            3
+        )
+        print("=========ウィンドウ処理（p75）==============")
+        df_p75 = round(
+            df_feature_value[feature_list_AU]
+            .shift(shift_size)
+            .rolling(window_size, min_periods=1)
+            .apply(judge_speak_p75),
+            3
+        )
+
         # dfの結合
         tmp_all_feature = pd.concat(
             [
@@ -268,7 +293,10 @@ class SlidingWindow():
                 df_y_pre,
                 df_std,
                 df_max,
-                df_min
+                df_min,
+                df_median,
+                df_p25,
+                df_p75
             ],
             axis=1,
         )
@@ -290,7 +318,56 @@ class SlidingWindow():
         )
         return df_reindex
 
+    # median, p25, p75の追加用
+    def add_au_feature(self, window_size, df_feature_value):
+        # overlapの計算
+        shift_size = (window_size // 2) - 1
+
+        print("=========ウィンドウ処理（median）==============")
+        df_median = round(
+            df_feature_value[feature_list_AU]
+            .shift(shift_size)
+            .rolling(window_size, min_periods=1)
+            .apply(judge_speak_median),
+            3,
+        )
+        print("=========ウィンドウ処理（p25）==============")
+        df_p25 = round(
+            df_feature_value[feature_list_AU]
+            .shift(shift_size)
+            .rolling(window_size, min_periods=1)
+            .apply(judge_speak_p25),
+            3
+        )
+        print("=========ウィンドウ処理（p75）==============")
+        df_p75 = round(
+            df_feature_value[feature_list_AU]
+            .shift(shift_size)
+            .rolling(window_size, min_periods=1)
+            .apply(judge_speak_p75),
+            3
+        )
+
+        # dfの結合
+        tmp_all_feature = pd.concat(
+            [
+                df_median,
+                df_p25,
+                df_p75
+            ],
+            axis=1,
+        )
+        df_all_feature = tmp_all_feature.set_axis(
+            resources.feature_colums_rolling_AU,
+            axis=1
+        )
+
+        df_all_feature_drop = df_all_feature.dropna()
+
+        return df_all_feature_drop
+
     # window内のAUの出現頻度をカウント
+
     def count_au_in_window(self,
                            window_size,
                            df_feature_value):
@@ -318,7 +395,7 @@ class SlidingWindow():
         convert_df_to_csv("/Users/fuyan/LocalDocs/ml-research/table/h-20220105_au_count_df.csv",
                           df_au)
 
-        print("基本統計")
+        # print("基本統計")
         # print(df_feature_value[feature_list_AU].describe())
         # convert_df_to_csv("/Users/fuyan/LocalDocs/ml-research/table/h-20220105_au_describe.csv",
         #                   df_feature_value[feature_list_AU].describe())
@@ -352,6 +429,15 @@ def judge_speak_skew(array_value):
 
 def judge_speak_kurt(array_value):
     return array_value.kurt()
+
+
+def judge_speak_p25(array_value):  # 25パーセンタイル
+    return array_value.quantile(0.25)
+
+
+def judge_speak_p75(array_value):  # 75パーセンタイル
+    return array_value.quantile(0.75)
+
 
 # 発話データを除外する処理
 

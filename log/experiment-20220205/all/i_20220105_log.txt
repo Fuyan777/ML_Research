@@ -1,0 +1,29 @@
+******* all/ *******
+
+■ sample
+class 0: 610
+all    : 1220
+
+■ score
+f_score list: [0.62928349 0.62462462 0.74045802 0.64864865 0.74814815]
+Average score(F-measure): 0.678
+
+precision list: [0.50753769 0.492891   0.69285714 0.55172414 0.68243243]
+Average score(precision): 0.585
+
+recall list: [0.82786885 0.85245902 0.79508197 0.78688525 0.82786885]
+Average score(recall): 0.818
+
+■ feature importance
+
+var     importance
+speaking_other1   0.12307
+med_mouth   0.04952
+AU25_r_max   0.04618
+min_pose_Tz   0.04342
+AU25_r_std   0.03935
+nonSpeak_other1   0.03691
+ave_mouth   0.03398
+AU10_r_max   0.03086
+med_pose_Tz   0.02927
+std_pose_Tx   0.02862

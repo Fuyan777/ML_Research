@@ -1,0 +1,27 @@
+******* speak_status/ *******
+
+■ sample
+class 0: 441
+all    : 882
+
+■ score
+f_score list: [0.57364341 0.54676259 0.54658385 0.63803681 0.54545455]
+Average score(F-measure): 0.57
+
+precision list: [0.90243902 0.76       0.60273973 0.69333333 1.        ]
+Average score(precision): 0.792
+
+recall list: [0.42045455 0.42696629 0.5        0.59090909 0.375     ]
+Average score(recall): 0.463
+
+■ feature importance
+
+var     importance
+nonSpeak_other1   0.41171
+speaking_other1   0.2556
+startSpeak_other2   0.09694
+endSpeak_other2   0.07795
+nonSpeak_other2   0.0748
+startSpeak_other1   0.05296
+speaking_other2   0.01607
+endSpeak_other1   0.01398

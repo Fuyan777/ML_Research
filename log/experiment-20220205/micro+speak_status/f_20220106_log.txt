@@ -1,0 +1,29 @@
+******* micro+speak_status/ *******
+
+■ sample
+class 0: 441
+all    : 882
+
+■ score
+f_score list: [0.61111111 0.63070539 0.68544601 0.76616915 0.68141593]
+Average score(F-measure): 0.675
+
+precision list: [0.4695122  0.5        0.584      0.68141593 0.55797101]
+Average score(precision): 0.559
+
+recall list: [0.875      0.85393258 0.82954545 0.875      0.875     ]
+Average score(recall): 0.862
+
+■ feature importance
+
+var     importance
+AU05_r_max   0.09718
+AU05_r_std   0.08022
+AU26_r_max   0.07026
+AU25_r_std   0.05645
+nonSpeak_other1   0.05397
+AU12_r_min   0.05112
+AU17_r_min   0.04943
+AU10_r_max   0.04672
+AU06_r_max   0.04508
+AU02_r_std   0.03603

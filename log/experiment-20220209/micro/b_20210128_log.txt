@@ -1,0 +1,33 @@
+******* micro/ *******
+
+■ sample
+class 0: 907
+all    : 1814
+
+■ confusion matrix
+[ 625 282 ]
+[ 573 334 ]
+
+■ score
+f_score list: [0.49137931 0.61946903 0.60606061 0.62921348 0.64150943]
+Average score(F-measure): 0.598
+
+precision list: [0.40282686 0.51660517 0.5        0.64367816 0.62631579]
+Average score(precision): 0.538
+
+recall list: [0.62983425 0.77348066 0.76923077 0.61538462 0.65745856]
+Average score(recall): 0.689
+
+■ feature importance
+
+var     importance
+AU04_r_max   0.05575
+AU17_r_min   0.04434
+AU09_r_max   0.04119
+AU04_r_median   0.03962
+AU04_r_p75   0.03707
+AU04_r_p25   0.03452
+AU09_r_median   0.03117
+AU17_r_p25   0.02958
+AU25_r_max   0.02829
+AU09_r_p25   0.02587

@@ -1,0 +1,29 @@
+******* macro+micro/ *******
+
+■ sample
+class 0: 731
+all    : 1462
+
+■ score
+f_score list: [0.60821918 0.70985915 0.63661972 0.73780488 0.61386139]
+Average score(F-measure): 0.661
+
+precision list: [0.50684932 0.60576923 0.54066986 0.66483516 0.48062016]
+Average score(precision): 0.56
+
+recall list: [0.76027397 0.85714286 0.7739726  0.82876712 0.84931507]
+Average score(recall): 0.814
+
+■ feature importance
+
+var     importance
+std_pose_Tx   0.04615
+min_gaze_x   0.03761
+min_pose_Ry   0.03656
+min_mouth   0.0344
+AU25_r_max   0.03402
+std_pose_Rz   0.03024
+ave_pose_Ry   0.02863
+AU14_r_std   0.02725
+ave_mouth   0.02717
+med_mouth   0.0256
