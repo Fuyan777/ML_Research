@@ -1,0 +1,40 @@
+******* macro+micro/ *******
+
+■ sample
+variable rank: 121
+class 0: 601
+all    : 1202
+
+■ confusion matrix
+[ 485 116 ]
+[ 399 202 ]
+
+■ score
+f_score list: [0.55063291 0.62111801 0.76119403 0.62416107 0.73309609]
+Average score(F-measure): 0.658
+
+precision list: [0.44387755 0.49751244 0.68918919 0.52247191 0.63975155]
+Average score(precision): 0.559
+
+recall list: [0.725      0.82644628 0.85       0.775      0.85833333]
+Average score(recall): 0.807
+
+■ feature importance
+
+var     importance
+med_mouth   0.06905
+ave_mouth   0.06495
+AU25_r_std   0.06025
+AU25_r_max   0.05016
+min_mouth   0.04002
+max_pose_Rz   0.03605
+ave_pose_Tz   0.03374
+max_mouth   0.03271
+max_pose_Tx   0.02968
+min_pose_Tz   0.02948
+
+■ top30 percent importance
+0.3204839230230733
+['med_mouth', 'ave_mouth', 'AU25_r_std', 'AU25_r_max', 'min_mouth', 'max_pose_Rz']
+■ top20 percent importance
+['med_mouth', 'ave_mouth', 'AU25_r_std', 'AU25_r_max']

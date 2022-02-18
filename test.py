@@ -1,32 +1,60 @@
 import pandas as pd
-
-non_speak_value = 1
-speak_value = 0
-
-
-def judge_endSpeak(array_value):
-    window_length = round(len(array_value)/2)
-    # ウィンドウ内の後半部分に1が含まれている
-    if any(array_value[window_length:].isin([non_speak_value])):
-        print("success1")
-        # ウィンドウ内に発話ラベルが1つ以上、30つ以内であれば1、それ以外0
-        if array_value[array_value == speak_value].count() >= 10:
-            print("success2 end")
-            return 1
-        else:
-            print("failure2")
-            return 0
-    else:
-        print("failure1")
-        return 0
+import pprint
+import collections
 
 
-# 1,1,1,1,1,
-# 0,0,0,0,0,
-list = pd.Series([0, 0, 0, 0, 0,
-                  0, 0, 0, 0, 0,
-                  0, 0, 0, 0, 0,
-                  1, 1, 1])
+top20 = [
+    "max_mouth",
+    "AU25_r_std",
+    "AU25_r_max",
+    "std_mouth",
+    "min_mouth",
+    "AU06_r_max",
+    "AU06_r_min",
+    "AU07_r_max",
+    "AU04_r_max",
+    "AU17_r_min",
+    "AU09_r_max",
+    "AU09_r_min",
+    "AU10_r_max",
+    "min_pose_Rx",
+    "std_pose_Tx",
+    "min_gaze_x",
+    "min_pose_Ry",
+    "ave_pose_Ry",
+    "max_pose_Tz",
+    "ave_pose_Tz",
+    "med_mouth"]
 
-result = judge_endSpeak(list)
-print(result)
+top10 = [
+    'AU06_r_max',
+    'AU04_r_max', 'AU17_r_min',
+    'std_mouth', 'max_mouth',
+    'max_mouth', 'AU25_r_max',
+    'std_pose_Tx', 'max_mouth',
+    'max_pose_Tz', 'ave_pose_Tz',
+    'max_mouth',
+    'AU25_r_std',
+    'max_mouth', 'AU25_r_max'
+]
+
+top10_variable = [
+    'AU04_r_max', 'AU17_r_min', 'AU09_r_max', 'AU09_r_min',
+    'AU04_r_max', 'AU17_r_min', 'AU09_r_max', 'AU09_r_min',
+    'max_mouth', 'med_mouth', 'std_mouth',
+    'AU10_r_max', 'AU25_r_max', 'AU25_r_std',
+    'max_mouth', 'std_pose_Tx', 'min_pose_Ry', 'min_gaze_x',
+    'AU05_r_max', 'AU05_r_std', 'AU17_r_min',
+    'max_mouth', 'med_mouth',
+    'AU17_r_max', 'AU25_r_std',
+    'max_mouth', 'ave_mouth', 'med_mouth'
+    'AU17_r_max', 'AU25_r_std'
+]
+
+c = collections.Counter(top10_variable)
+
+
+for i in range(len(top10_variable)):
+    key = c.most_common()[i][0]
+    value = c.most_common()[i][1]
+    print(key+","+str(value))

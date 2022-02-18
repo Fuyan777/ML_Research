@@ -1,0 +1,40 @@
+******* macro+speak_status/ *******
+
+■ sample
+variable rank: 71
+class 0: 1169
+all    : 2338
+
+■ confusion matrix
+[ 867 302 ]
+[ 529 640 ]
+
+■ score
+f_score list: [0.76623377 0.63568773 0.66267465 0.62342342 0.70726916]
+Average score(F-measure): 0.679
+
+precision list: [0.77631579 0.5625     0.62172285 0.53726708 0.65454545]
+Average score(precision): 0.63
+
+recall list: [0.75641026 0.73076923 0.70940171 0.74248927 0.76923077]
+Average score(recall): 0.742
+
+■ feature importance
+
+var     importance
+max_mouth   0.137
+med_mouth   0.08299
+min_mouth   0.08165
+ave_mouth   0.06582
+med_pose_Tz   0.04405
+ave_pose_Tx   0.04366
+ave_gaze_y   0.03758
+ave_pose_Tz   0.03624
+med_pose_Tx   0.03393
+min_pose_Tz   0.03219
+
+■ top30 percent importance
+0.30164394617035445
+['max_mouth', 'med_mouth', 'min_mouth']
+■ top20 percent importance
+['max_mouth', 'med_mouth']

@@ -1,0 +1,40 @@
+******* all/ *******
+
+■ sample
+variable rank: 122
+class 0: 441
+all    : 882
+
+■ confusion matrix
+[ 370 71 ]
+[ 328 113 ]
+
+■ score
+f_score list: [0.60557769 0.63436123 0.72       0.61864407 0.68444444]
+Average score(F-measure): 0.653
+
+precision list: [0.46625767 0.52173913 0.64285714 0.49324324 0.5620438 ]
+Average score(precision): 0.537
+
+recall list: [0.86363636 0.80898876 0.81818182 0.82954545 0.875     ]
+Average score(recall): 0.839
+
+■ feature importance
+
+var     importance
+max_pose_Tz   0.06762
+ave_pose_Tz   0.06368
+min_mouth   0.05762
+max_mouth   0.05053
+std_pose_Tx   0.04402
+min_pose_Tz   0.03715
+med_pose_Tz   0.03675
+AU05_r_max   0.03324
+AU05_r_std   0.03274
+med_mouth   0.02867
+
+■ top30 percent importance
+0.3206319020121175
+['max_pose_Tz', 'ave_pose_Tz', 'min_mouth', 'max_mouth', 'std_pose_Tx', 'min_pose_Tz']
+■ top20 percent importance
+['max_pose_Tz', 'ave_pose_Tz', 'min_mouth', 'max_mouth']

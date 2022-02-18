@@ -1,0 +1,40 @@
+******* micro+speak_status/ *******
+
+■ sample
+variable rank: 52
+class 0: 174
+all    : 348
+
+■ confusion matrix
+[ 157 17 ]
+[ 85 89 ]
+
+■ score
+f_score list: [0.76315789 0.82666667 0.66       0.75609756 0.79518072]
+Average score(F-measure): 0.76
+
+precision list: [0.70731707 0.775      0.50769231 0.64583333 0.6875    ]
+Average score(precision): 0.665
+
+recall list: [0.82857143 0.88571429 0.94285714 0.91176471 0.94285714]
+Average score(recall): 0.902
+
+■ feature importance
+
+var     importance
+AU25_r_std   0.13864
+AU25_r_max   0.11022
+AU10_r_max   0.08496
+AU12_r_std   0.07454
+AU06_r_max   0.06222
+AU12_r_max   0.04648
+AU14_r_std   0.03928
+AU14_r_max   0.03899
+AU10_r_min   0.03583
+AU07_r_std   0.03181
+
+■ top30 percent importance
+0.3338281287795225
+['AU25_r_std', 'AU25_r_max', 'AU10_r_max']
+■ top20 percent importance
+['AU25_r_std', 'AU25_r_max']

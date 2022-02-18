@@ -1,0 +1,31 @@
+******* speak_status/ *******
+
+■ sample
+variable rank: 7
+class 0: 441
+all    : 882
+
+■ confusion matrix
+[ 254 187 ]
+[ 118 323 ]
+
+■ score
+f_score list: [0.69461078 0.62721893 0.59259259 0.63855422 0.55737705]
+Average score(F-measure): 0.622
+
+precision list: [0.73417722 0.6625     0.55445545 0.67948718 1.        ]
+Average score(precision): 0.726
+
+recall list: [0.65909091 0.59550562 0.63636364 0.60227273 0.38636364]
+Average score(recall): 0.576
+
+■ feature importance
+
+var     importance
+nonSpeak_other1   0.4636
+startSpeak_other2   0.16571
+endSpeak_other2   0.15095
+startSpeak_other1   0.09129
+nonSpeak_other2   0.08135
+speaking_other2   0.0266
+endSpeak_other1   0.02051

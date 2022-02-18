@@ -1,4 +1,7 @@
 # learning module
+from select import select
+
+from cv2 import threshold
 from sklearn.model_selection import LeaveOneOut
 import lightgbm as lgb
 from learning_flow import preprocessing
@@ -9,6 +12,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
+import seaborn as sns
 
 # sklearn
 from sklearn.ensemble import RandomForestClassifier
@@ -19,6 +23,8 @@ from sklearn.feature_selection import RFE
 from sklearn.model_selection import TimeSeriesSplit
 from imblearn.under_sampling import RandomUnderSampler
 from collections import Counter
+from sklearn.inspection import permutation_importance
+import shap
 
 
 class ModelSelection:
@@ -51,11 +57,27 @@ class ModelSelection:
         print(y)
         print(X)
 
+        # 時系列的に予測する用のLeave one out
+        # make_loo(X, y)
+        # return
+
+        variable_rank = len(X.columns)
+        # # 相関係数によるfilter method法
+        # x_dropped_highly_correlated, variable_rank = select_feature_confusion_matrix(
+        #     X)
+
+        # # 全ての被験者丸ごと特徴量データ
+        # pre = preprocessing.Preprocessing()
+        # all_user_feature_value = pre.union_all_user_csv_feature_value()
+        # _y = all_user_feature_value.loc[:, "y_pre_label"]
+        # _X = all_user_feature_value.loc[:,
+        #                                 resources.x_variable_feature_all_colums]
+
         recall, precision, f1 = make_random_forest_k_hold_validation(
             user_charactor,
             str_feature_value,
             X, y,
-            exp_date
+            exp_date, variable_rank
         )
 
         return recall, precision, f1
@@ -80,10 +102,11 @@ def make_random_forest_k_hold_validation(
     user_charactor,
     str_feature_value,
     X, y,
-    user_date
+    user_date, variable_rank
 ):
     # 文字列の保持
     output_array = []
+    cv = 5
 
     rus = RandomUnderSampler(random_state=0)
     _X, _y = rus.fit_resample(X, y)
@@ -96,24 +119,29 @@ def make_random_forest_k_hold_validation(
     print(_X)
     print(_y)
 
+    print("variable rank: {}".format(variable_rank))
     print("class 0: {}".format(len(_y[_y == 0])))
     print("all    : {}".format(len(_y)))
 
     output_array.append("******* " + str_feature_value+" *******\n")
     output_array.append("■ sample")
+    output_array.append("variable rank: {}".format(variable_rank))
     output_array.append("class 0: {}".format(len(_y[_y == 0])))
     output_array.append("all    : {}\n".format(len(_y)))
 
-    y_pred = cross_val_predict(rf, _X, _y, cv=5)
-    print(confusion_matrix(_y, y_pred))
+    y_pred = cross_val_predict(rf, _X, _y, cv=cv)
     cm = confusion_matrix(_y, y_pred)
+    # make_confusion_matrix(cm)
     tn, fp, fn, tp = cm.flatten()
     output_array.append("■ confusion matrix")
     output_array.append("[ {} {} ]".format(str(tp), str(fn)))
     output_array.append("[ {} {} ]\n".format(str(fp), str(tn)))
 
+    print("[ {} {} ]".format(str(tp), str(fn)))
+    print("[ {} {} ]\n".format(str(fp), str(tn)))
+
     # 精度結果
-    scores = cross_val_score(rf, _X, _y, cv=5, scoring="f1")
+    scores = cross_val_score(rf, _X, _y, cv=cv, scoring="f1")
 
     # recording
     output_array.append("■ score")
@@ -121,7 +149,7 @@ def make_random_forest_k_hold_validation(
     output_array.append(
         "Average score(F-measure): {}\n".format(round(np.mean(scores), 3)))
 
-    scores_precision = cross_val_score(rf, _X, _y, cv=5, scoring="precision")
+    scores_precision = cross_val_score(rf, _X, _y, cv=cv, scoring="precision")
 
     output_array.append("precision list: {}".format(scores_precision))
     output_array.append("Average score(precision): {}\n".format(
@@ -139,7 +167,7 @@ def make_random_forest_k_hold_validation(
         round(np.mean(scores_precision), 3)))
     print("F-measure   : {}".format(round(np.mean(scores), 3)))
 
-    feature = feature_importance(
+    feature, score_value, top_30_variable, top_20_variable = feature_importance(
         _X,
         rf,
         user_charactor,
@@ -147,22 +175,70 @@ def make_random_forest_k_hold_validation(
     )
     output_array.append("■ feature importance\n")
     output_array.append("var     importance")
-
-    for i in range(len(feature.values)):
+    feature_array = feature.values
+    for i in range(len(feature_array)):
         output_array.append(
-            str(feature.values[i][0]) + "   "+str(round(feature.values[i][1], 5)))
+            str(feature_array[i][0]) + "   "+str(round(feature_array[i][1], 5)))
+
+    output_array.append("\n■ top30 percent importance")
+    output_array.append(str(score_value)+"\n"+str(top_30_variable))
+    output_array.append("■ top20 percent importance")
+    output_array.append(str(top_20_variable))
+
+    # shap値
+    # shap.initjs()
+    # explainer = shap.TreeExplainer(rf, _X)
+    # shap_values = explainer.shap_values(_X, check_additivity=False)
+    # print("sss")
+    # fig, ax = plt.subplots(figsize=(12, 9))
+    # shap.summary_plot(shap_values, X, plot_type="bar", feature_names=X.columns)
 
     # recording
-    write_txt_log_data(
-        user_charactor,
-        str_feature_value,
-        user_date,
-        output_array
-    )
+    # write_txt_log_data(
+    #     user_charactor,
+    #     str_feature_value,
+    #     user_date,
+    #     output_array
+    # )
 
     # feature_selection_RFE(rf, _X, _y)
 
     return round(np.mean(scores_recall), 3), round(np.mean(scores_precision), 3), round(np.mean(scores), 3)
+
+
+def select_feature_confusion_matrix(X):
+    threshold = 0.7
+    fig, ax = plt.subplots(figsize=(12, 9))
+    plt.title('Confusion Matrix')
+
+    # 相関行列を計算
+    df_corr = X.corr()
+    print(df_corr)
+    print("Before filter method")
+    print(len(X.columns))
+
+    feat_corr = set()
+    for i in range(len(df_corr.columns)):
+        for j in range(i):
+            if abs(df_corr.iloc[i, j]) > threshold:
+                feat_name = df_corr.columns[i]
+                feat_corr.add(feat_name)
+
+    print("number of deleted variable")
+    print(len(set(feat_corr)))
+
+    X.drop(labels=feat_corr, axis="columns", inplace=True)
+    print("After filter method")
+    print(len(X.columns))
+
+    s = X.corr()
+    # save
+    sns.heatmap(s, square=True, vmax=1,
+                vmin=-1, center=0, linewidths=.5)
+    plt.savefig(
+        "/Users/fuyan/LocalDocs/ml-research/ml_graph/heatmap/d_au_heatmap.png")
+
+    return X, len(X.columns)
 
 #
 # recording experiment data
@@ -182,6 +258,26 @@ def write_txt_log_data(user_caractor, str_feature_value, user_date, value):
         f.write(value[i] + '\n')
 
     f.close()
+
+#
+# cm
+#
+
+
+def make_confusion_matrix(cm):
+    fig = plt.figure(figsize=(8, 7))
+    plt.rcParams['font.size'] = 20
+    cf_matrix = np.array([[464, 137],
+                          [300, 301]])
+    label = np.array(["speak", "non-speak"])
+    df = pd.DataFrame(cf_matrix, columns=label, index=label)
+    sns.heatmap(df, annot=True, square=True, vmax=500,
+                vmin=0, cmap="Blues", fmt="d")
+    plt.xlabel('predict')
+    plt.ylabel('actual')
+    plt.savefig(
+        "/Users/fuyan/LocalDocs/ml-research/ml_graph/heatmap/cm_heatmap_a.png")
+
 
 # 学習モデルの構築（random forest）
 # 時系列交差検証
@@ -307,9 +403,11 @@ def make_random_forest_model_timesplit(
     output_array.append("■ feature importance\n")
     output_array.append("var     importance")
 
-    for i in range(len(feature.values)):
+    feture_array = feature.values
+
+    for i in range(len(feture_array)):
         output_array.append(
-            str(feature.values[i][0]) + "   "+str(feature.values[i][1]))
+            str(feture_array[i][0]) + "   "+str(feture_array[i][1]))
 
     # recording
     write_txt_log_data(
@@ -372,23 +470,13 @@ def make_loo(X, y):
     loo = LeaveOneOut()
     print(loo.get_n_splits(X))
 
-    # # 説明変数
-    # X_train, X_test = [], []
-    # # 目的変数
-    # y_train, y_test = [], []
-
-    rf = RandomForestClassifier(
-        max_depth=3,
-        n_estimators=100,
-        random_state=0
-    )
     rus_train = RandomUnderSampler(random_state=0)
     X_, y_ = rus_train.fit_resample(X, y)
     print(loo.get_n_splits(X_))
 
     entire_count = loo.get_n_splits(X_)  # テスト回数取得
-    correct_answer_count = 0  # 推定が正解だった数初期化
     counter = 0
+    predicted_labels = []
 
     for train_index, test_index in loo.split(X_):
         # print("TRAIN:", train_index, "TEST:", test_index)
@@ -396,20 +484,30 @@ def make_loo(X, y):
         y_train, y_test = y_.iloc[train_index], y_.iloc[test_index]
         # print(X_train, X_test, y_train, y_test)
 
+        # learning
+
+        rf = RandomForestClassifier(
+            max_depth=3,
+            n_estimators=100,
+            random_state=0
+        )
         rf.fit(X_train, y_train)
-        y_pred = rf.predict(X_test)
-        if (y_pred == y_test).all:
-            correct_answer_count += 1.0
+
+        predicted_label = rf.predict(X_test)
+        predicted_labels.append(predicted_label)
 
         counter += 1
-        print(counter)
 
     print("最終結果")
-    print(correct_answer_count)
-    print(entire_count)
-    rate = (float(correct_answer_count) / float(entire_count))  # 正解率を計算
-    print(str(rate))
-    print(rate)
+    print("counter: " + str(counter)+"\n")
+    accuracy = accuracy_score(y_, predicted_labels)
+    recall = recall_score(y_, predicted_labels)
+    precision = precision_score(y_, predicted_labels)
+    f1 = f1_score(y_, predicted_labels)
+    print("accuracy  : "+str(round(accuracy, 3)))
+    print("recall    : "+str(round(recall, 3)))
+    print("precision : "+str(round(precision, 3)))
+    print("f-measure : "+str(round(f1, 3)))
 
     # 精度の可視化
     # show_predict_score(y_test_resampled, y_pred)
@@ -552,33 +650,62 @@ def split_list(l, n):
 def feature_importance(X_train, rf, user_charactor, user_date):
     # 変数重要度
     print("\n[Feature Importances]")
-
     importance = pd.DataFrame(
         {"var": X_train.columns, "importance": rf.feature_importances_}
     )
 
-    importance_top5 = importance.sort_values(
+    # sort
+    importance_sorted = importance.sort_values(
         "importance", ascending=False
-    ).head(5)
-
-    print("----importance------")
-    print(importance_top5)
-    print("--------------------\n")
-
-    # 棒グラフの生成
-    show_bar_graph(
-        user_charactor,
-        importance_top5["importance"].values,
-        importance_top5["var"].values,
-        user_date
     )
 
-    importance_top10 = importance.sort_values(
-        "importance", ascending=False
-    ).head(10)
+    print(importance_sorted)
+    importance_top5 = importance_sorted.head(5)
+    importance_top10 = importance_sorted.head(10)
 
-    # ["var"].values, importance_top10["importance"].values
-    return importance_top10
+    var_array = importance_sorted["var"].values
+    importance_array = importance_sorted["importance"].values
+
+    top_30_variable = []  # 上位x%以上の変数
+    score_value_top_30 = 0.0
+
+    # 重要度を足して，0.3（上位30%）以上になったら終わり
+    for i in range(len(importance_sorted)):
+        top_30_variable.append(var_array[i])
+        score_value_top_30 += importance_array[i]
+
+        if score_value_top_30 > 0.3:
+            break
+
+    top_20_variable = []  # 上位x%以上の変数
+    score_value_top_20 = 0.0
+
+    # 重要度を足して，0.3（上位30%）以上になったら終わり
+    for i in range(len(importance_sorted)):
+        top_20_variable.append(var_array[i])
+        score_value_top_20 += importance_array[i]
+
+        if score_value_top_20 > 0.2:
+            break
+
+    print("----top30%------")
+    print(score_value_top_30)
+    print(top_30_variable)
+    print("--------------------\n")
+
+    print("----importance------")
+    print(importance_top10)
+    print("--------------------\n")
+
+    # # 棒グラフの生成
+    # show_bar_graph(
+    #     user_charactor,
+    #     importance_top5["importance"].values,
+    #     importance_top5["var"].values,
+    #     user_date
+    # )
+
+    return importance_top10, score_value_top_30, top_30_variable, top_20_variable
 
 
 #
@@ -591,6 +718,8 @@ def make_random_forest_model(
         X_train, y_train,
         X_test, y_test,
         X, y
+
+
 ):
     max_depth = 3
     n = 10
@@ -736,24 +865,3 @@ def feature_selection_RFE(rf, X, y):
     print("F1 score : {}".format(np.mean(scores)))
 
     print("-------Finish-----------")
-
-
-#
-# 混同行列表示
-#
-
-
-def make_cm(matrix, columns):
-    # matrix numpy配列
-
-    # columns 項目名リスト
-    n = len(columns)
-
-    # '正解データ'をn回繰り返すリスト生成
-    act = ['正解'] * n
-    pred = ['予測'] * n
-
-    # データフレーム生成
-    cm = pd.DataFrame(matrix,
-                      columns=[pred, columns], index=[act, columns])
-    return cm

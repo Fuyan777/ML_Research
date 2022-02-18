@@ -1,13 +1,9 @@
 # learning module
-from matplotlib.pyplot import axis
-from pandas.core.construction import array
-from pandas.io.formats.format import return_docstring
 from resources import resources
 
 # external module
 import numpy as np
 import pandas as pd
-import seaborn as sns
 import matplotlib.pyplot as plt
 
 feature_list = [
@@ -56,9 +52,10 @@ class SlidingWindow():
         window_size,
         df_feature_value,
     ):
+        print(df_feature_value)
         # overlapの計算
         shift_size = (window_size // 2) - 1
-
+        print("=========ウィンドウ処理（label）==============")
         # ウインドウ処理
         df_y = (
             df_feature_value["y"]
@@ -69,6 +66,30 @@ class SlidingWindow():
 
         df_y_pre = (
             df_feature_value["y_pre_label"]
+            .shift(shift_size)
+            .rolling(window_size, min_periods=1)
+            .apply(judge_y_pre)
+        )
+        df_y_pre_05s = (
+            df_feature_value["y_pre_label_2s"]
+            .shift(shift_size)
+            .rolling(window_size, min_periods=1)
+            .apply(judge_y_pre)
+        )
+        df_y_pre_2s = (
+            df_feature_value["y_pre_label_2s"]
+            .shift(shift_size)
+            .rolling(window_size, min_periods=1)
+            .apply(judge_y_pre)
+        )
+        df_y_pre_3s = (
+            df_feature_value["y_pre_label_3s"]
+            .shift(shift_size)
+            .rolling(window_size, min_periods=1)
+            .apply(judge_y_pre)
+        )
+        df_y_pre_5s = (
+            df_feature_value["y_pre_label_5s"]
             .shift(shift_size)
             .rolling(window_size, min_periods=1)
             .apply(judge_y_pre)
@@ -131,50 +152,61 @@ class SlidingWindow():
             3,
         )
         print("=========ウィンドウ処理（isSpeak_other）==============")
-        df_other_speak1 = (
-            df_feature_value["isSpeak_other1"]
-            .shift(shift_size)
-            .rolling(window_size, min_periods=1)
-            .apply(judge_is_speak_other)
-        )
+        # df_other_speak1 = (
+        #     df_feature_value["isSpeak_other1"]
+        #     .shift(shift_size)
+        #     .rolling(window_size, min_periods=1)
+        #     .apply(judge_is_speak_other)
+        # )
 
-        df_other_speak2 = (
-            df_feature_value["isSpeak_other2"]
+        # df_other_speak2 = (
+        #     df_feature_value["isSpeak_other2"]
+        #     .shift(shift_size)
+        #     .rolling(window_size, min_periods=1)
+        #     .apply(judge_is_speak_other)
+        # )
+
+        df_other_speak = (
+            df_feature_value["isSpeak_other"]
             .shift(shift_size)
             .rolling(window_size, min_periods=1)
             .apply(judge_is_speak_other)
         )
-        print("=========ウィンドウ処理（speak status）==============")
-        df_other_non_speak = (
-            df_feature_value[feature_list_user]
-            .shift(shift_size)
-            .rolling(window_size, min_periods=1)
-            .apply(judge_nonSpeak)
-        )
-        df_other_start_speak = (
-            df_feature_value[feature_list_user]
-            .shift(shift_size)
-            .rolling(window_size, min_periods=1)
-            .apply(judge_startSpeak)
-        )
-        df_other_speaking = (
-            df_feature_value[feature_list_user]
-            .shift(shift_size)
-            .rolling(window_size, min_periods=1)
-            .apply(judge_speaking)
-        )
-        df_other_end_speak = (
-            df_feature_value[feature_list_user]
-            .shift(shift_size)
-            .rolling(window_size, min_periods=1)
-            .apply(judge_endSpeak)
-        )
+        # print("=========ウィンドウ処理（speak status）==============")
+        # df_other_non_speak = (
+        #     df_feature_value[feature_list_user]
+        #     .shift(shift_size)
+        #     .rolling(window_size, min_periods=1)
+        #     .apply(judge_nonSpeak)
+        # )
+        # df_other_start_speak = (
+        #     df_feature_value[feature_list_user]
+        #     .shift(shift_size)
+        #     .rolling(window_size, min_periods=1)
+        #     .apply(judge_startSpeak)
+        # )
+        # df_other_speaking = (
+        #     df_feature_value[feature_list_user]
+        #     .shift(shift_size)
+        #     .rolling(window_size, min_periods=1)
+        #     .apply(judge_speaking)
+        # )
+        # df_other_end_speak = (
+        #     df_feature_value[feature_list_user]
+        #     .shift(shift_size)
+        #     .rolling(window_size, min_periods=1)
+        #     .apply(judge_endSpeak)
+        # )
         print("=========後処理==============")
         # dfの結合
         tmp_all_feature = pd.concat(
             [
                 df_y,
                 df_y_pre,
+                df_y_pre_05s,
+                df_y_pre_2s,
+                df_y_pre_3s,
+                df_y_pre_5s,
                 df_ave,
                 df_std,
                 df_max,
@@ -182,12 +214,13 @@ class SlidingWindow():
                 df_med,
                 df_skew,
                 df_kurt,
-                df_other_speak1,
-                df_other_speak2,
-                df_other_non_speak,
-                df_other_start_speak,
-                df_other_speaking,
-                df_other_end_speak
+                df_other_speak
+                # df_other_speak1,
+                # df_other_speak2,
+                # df_other_non_speak,
+                # df_other_start_speak,
+                # df_other_speaking,
+                # df_other_end_speak
             ],
             axis=1,
         )
@@ -205,13 +238,6 @@ class SlidingWindow():
             resources.feature_reindex_colums,
             axis=1
         )
-
-        # df_reindex.to_csv(
-        #     "/Users/fuyan/LocalDocs/ml-research/test.csv",
-        #     mode="w",  # 上書き
-        #     index=False,
-        # )
-        # return
         return df_reindex
 
     def run_AU(
@@ -366,41 +392,8 @@ class SlidingWindow():
 
         return df_all_feature_drop
 
-    # window内のAUの出現頻度をカウント
 
-    def count_au_in_window(self,
-                           window_size,
-                           df_feature_value):
-        # overlapの計算
-        shift_size = (window_size // 2) - 1
-        fig, ax = plt.subplots(figsize=(12, 9))
-        plt.title('AU Correlation in Web Conferencing')
-        # 相関行列を計算
-        df_corr = df_feature_value[feature_list_AU].corr()
-        print(df_corr)
-        sns.heatmap(df_corr, square=True, vmax=1,
-                    vmin=-1, center=0, linewidths=.5)
-        plt.savefig(
-            "/Users/fuyan/LocalDocs/ml-research/ml_graph/heatmap/au_heatmap.png")
-
-        # 1つのウィンドウを抽出
-        df_au = (
-            df_feature_value[feature_list_AU]
-            .shift(shift_size)
-            .rolling(window_size, min_periods=1)
-            .apply(count_other_au)
-        )
-        print("出現頻度の個数")
-        print(df_au)
-        convert_df_to_csv("/Users/fuyan/LocalDocs/ml-research/table/h-20220105_au_count_df.csv",
-                          df_au)
-
-        # print("基本統計")
-        # print(df_feature_value[feature_list_AU].describe())
-        # convert_df_to_csv("/Users/fuyan/LocalDocs/ml-research/table/h-20220105_au_describe.csv",
-        #                   df_feature_value[feature_list_AU].describe())
-
-    # sliding window method
+# sliding window method
 
 
 def judge_speak_mean(array_value):
@@ -460,7 +453,8 @@ def judge_y(array_value):
 
 
 def judge_y_pre(array_value):
-    return array_value.iloc[-1]
+    return array_value.iloc[-1]  # 配列の最後の要素を返す
+
 
 # 発話の有無
 
