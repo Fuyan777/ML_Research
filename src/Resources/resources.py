@@ -45,7 +45,9 @@ columns_setting_pre_feature_header_all_feature_re = [
     " AU07_r", " AU09_r", " AU10_r", " AU12_r", " AU14_r", " AU15_r",
     " AU17_r", " AU20_r", " AU23_r", " AU25_r", " AU26_r", " AU45_r",
     "y", "y_pre_label", "y_pre_label_0.5s",  "y_pre_label_2s", "y_pre_label_3s", "y_pre_label_5s",
-    "isSpeak_other", "isSpeak_other1", "isSpeak_other2", "duration_of_speak_all", "duration_of_speak1", "duration_of_speak2"
+    "isSpeak_other", "isSpeak_other1", "isSpeak_other2",
+    "duration_of_speak_other", "duration_of_speak_other1", "duration_of_speak_other2",
+    "duration_of_non_speak_other","duration_of_non_speak_other1","duration_of_non_speak_other2"
 ]
 
 # index変換用 カラム
@@ -152,6 +154,8 @@ feature_all_reindex_colums = [
     "AU45_r_std", "AU45_r_max", "AU45_r_min", "AU45_r_median",  "AU45_r_p25",  "AU45_r_p75",
     # other_speak_status
     "isSpeak_other",
+    "duration_of_speak_other",
+    "duration_of_non_speak_other",
     # "isSpeak_other1",
     # "nonSpeak_other1", "startSpeak_other1", "speaking_other1", "endSpeak_other1",
     # "isSpeak_other2",
@@ -182,86 +186,86 @@ x_variable_feature_all_colums__ = [
     "med_mouth"]
 
 x_variable_feature_all_colums = [
-    # # gaze_x
-    # "ave_gaze_x",
-    # "std_gaze_x",
-    # "max_gaze_x",
-    # "min_gaze_x",
-    # "med_gaze_x",
-    # "skew_gaze_x",
-    # "kurt_gaze_x",
-    # # gaze_y
-    # "ave_gaze_y",
-    # "std_gaze_y",
-    # "max_gaze_y",
-    # "min_gaze_y",
-    # "med_gaze_y",
-    # "skew_gaze_y",
-    # "kurt_gaze_y",
-    # # gaze_hypo
-    # "ave_gaze_hypo",
-    # "std_gaze_hypo",
-    # "max_gaze_hypo",
-    # "min_gaze_hypo",
-    # "med_gaze_hypo",
-    # "skew_gaze_hypo",
-    # "kurt_gaze_hypo",
-    # # poze_Tx
-    # "ave_pose_Tx",
-    # "std_pose_Tx",
-    # "max_pose_Tx",
-    # "min_pose_Tx",
-    # "med_pose_Tx",
-    # "skew_pose_Tx",
-    # "kurt_pose_Tx",
-    # # poze_Ty
-    # "ave_pose_Ty",
-    # "std_pose_Ty",
-    # "max_pose_Ty",
-    # "min_pose_Ty",
-    # "med_pose_Ty",
-    # "skew_pose_Ty",
-    # "kurt_pose_Ty",
-    # # poze_Tz
-    # "ave_pose_Tz",
-    # "std_pose_Tz",
-    # "max_pose_Tz",
-    # "min_pose_Tz",
-    # "med_pose_Tz",
-    # "skew_pose_Tz",
-    # "kurt_pose_Tz",
-    # # poze_Rx
-    # "ave_pose_Rx",
-    # "std_pose_Rx",
-    # "max_pose_Rx",
-    # "min_pose_Rx",
-    # "med_pose_Rx",
-    # "skew_pose_Rx",
-    # "kurt_pose_Rx",
-    # # poze_Ry
-    # "ave_pose_Ry",
-    # "std_pose_Ry",
-    # "max_pose_Ry",
-    # "min_pose_Ry",
-    # "med_pose_Ry",
-    # "skew_pose_Ry",
-    # "kurt_pose_Ry",
-    # # poze_Rz
-    # "ave_pose_Rz",
-    # "std_pose_Rz",
-    # "max_pose_Rz",
-    # "min_pose_Rz",
-    # "med_pose_Rz",
-    # "skew_pose_Rz",
-    # "kurt_pose_Rz",
-    # # mouth
-    # "ave_mouth",
-    # "std_mouth",
-    # "max_mouth",
-    # "min_mouth",
-    # "med_mouth",
-    # "skew_mouth",
-    # "kurt_mouth",
+    # gaze_x
+    "ave_gaze_x",
+    "std_gaze_x",
+    "max_gaze_x",
+    "min_gaze_x",
+    "med_gaze_x",
+    "skew_gaze_x",
+    "kurt_gaze_x",
+    # gaze_y
+    "ave_gaze_y",
+    "std_gaze_y",
+    "max_gaze_y",
+    "min_gaze_y",
+    "med_gaze_y",
+    "skew_gaze_y",
+    "kurt_gaze_y",
+    # gaze_hypo
+    "ave_gaze_hypo",
+    "std_gaze_hypo",
+    "max_gaze_hypo",
+    "min_gaze_hypo",
+    "med_gaze_hypo",
+    "skew_gaze_hypo",
+    "kurt_gaze_hypo",
+    # poze_Tx
+    "ave_pose_Tx",
+    "std_pose_Tx",
+    "max_pose_Tx",
+    "min_pose_Tx",
+    "med_pose_Tx",
+    "skew_pose_Tx",
+    "kurt_pose_Tx",
+    # poze_Ty
+    "ave_pose_Ty",
+    "std_pose_Ty",
+    "max_pose_Ty",
+    "min_pose_Ty",
+    "med_pose_Ty",
+    "skew_pose_Ty",
+    "kurt_pose_Ty",
+    # poze_Tz
+    "ave_pose_Tz",
+    "std_pose_Tz",
+    "max_pose_Tz",
+    "min_pose_Tz",
+    "med_pose_Tz",
+    "skew_pose_Tz",
+    "kurt_pose_Tz",
+    # poze_Rx
+    "ave_pose_Rx",
+    "std_pose_Rx",
+    "max_pose_Rx",
+    "min_pose_Rx",
+    "med_pose_Rx",
+    "skew_pose_Rx",
+    "kurt_pose_Rx",
+    # poze_Ry
+    "ave_pose_Ry",
+    "std_pose_Ry",
+    "max_pose_Ry",
+    "min_pose_Ry",
+    "med_pose_Ry",
+    "skew_pose_Ry",
+    "kurt_pose_Ry",
+    # poze_Rz
+    "ave_pose_Rz",
+    "std_pose_Rz",
+    "max_pose_Rz",
+    "min_pose_Rz",
+    "med_pose_Rz",
+    "skew_pose_Rz",
+    "kurt_pose_Rz",
+    # mouth
+    "ave_mouth",
+    "std_mouth",
+    "max_mouth",
+    "min_mouth",
+    "med_mouth",
+    "skew_mouth",
+    "kurt_mouth",
     # AU
     # "AU01_r_std", "AU01_r_max", "AU01_r_min", "AU01_r_median",  "AU01_r_p25",  "AU01_r_p75",
     # "AU02_r_std", "AU02_r_max", "AU02_r_min", "AU02_r_median",  "AU02_r_p25",  "AU02_r_p75",
@@ -300,7 +304,8 @@ x_variable_feature_all_colums = [
     "AU45_r_std", "AU45_r_max", "AU45_r_min",
     # other_speak_status
     "isSpeak_other",
-
+    "duration_of_speak_other",
+    "duration_of_non_speak_other",
 
     # "isSpeak_other1",
     # "nonSpeak_other1", "startSpeak_other1", "speaking_other1", "endSpeak_other1",
@@ -416,6 +421,8 @@ feature_rolling_colums = [
     "kurt_mouth",
     # isSpeak
     "isSpeak_other",
+    "duration_of_speak_other",
+    "duration_of_non_speak_other",
 
     # "isSpeak_other1", "isSpeak_other2",
     # # speak status
@@ -511,6 +518,8 @@ feature_reindex_colums = [
     "kurt_mouth",
     # isSpeak & speak status
     "isSpeak_other",
+    "duration_of_speak_other",
+    "duration_of_non_speak_other",
     # "isSpeak_other1",
     # "nonSpeak_other1", "startSpeak_other1", "speaking_other1", "endSpeak_other1",
     # "isSpeak_other2",

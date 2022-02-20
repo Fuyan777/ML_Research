@@ -1,3 +1,4 @@
+from pickletools import read_unicodestring1
 from re import I
 from learning_flow import model_selection
 from learning_flow import preprocessing
@@ -5,10 +6,9 @@ from learning_flow import preprocessing
 
 # parameter
 # ["a", "b", "c"] ["d", "e", "f"] ["g", "h", "i"]
+# ["a", "b", "c", "d", "e", "f", "g", "h", "i"]
 
-user_charactor = ["a"]
-other1_char = "b"
-other2_char = "c"
+user_charactor = ["a", "b", "c", "d", "e", "f", "g", "h", "i"]
 speak_prediction_time = ["1w_1s"]
 
 # ウィンドウサイズの設定w（0.033 : 0.5秒先=15, 1秒=30, 2秒=60, 3秒=90, 5秒=150 ）
@@ -40,25 +40,53 @@ def main():
 
         if (user_index == "a") or (user_index == "b") or (user_index == "c"):
             exp_date.append("20210128")
+            if user_index == "a":
+                other1_char = "b"
+                other2_char = "c"
+            elif user_index == "b":
+                other1_char = "a"
+                other2_char = "c"
+            elif user_index == "c":
+                other1_char = "a"
+                other2_char = "b"
+
         elif (user_index == "d") or (user_index == "e") or (user_index == "f"):
             exp_date.append("20220106")
+            if user_index == "d":
+                other1_char = "e"
+                other2_char = "f"
+            elif user_index == "e":
+                other1_char = "d"
+                other2_char = "f"
+            elif user_index == "f":
+                other1_char = "d"
+                other2_char = "e"
+
         elif (user_index == "g") or (user_index == "h") or (user_index == "i"):
             exp_date.append("20220105")
+            if user_index == "g":
+                other1_char = "h"
+                other2_char = "i"
+            elif user_index == "h":
+                other1_char = "g"
+                other2_char = "i"
+            elif user_index == "i":
+                other1_char = "g"
+                other2_char = "h"
 
         window_size = window_size_big if user_index == "a" else window_size_normal
 
         for date in exp_date:
             user_date = user_index + "-" + date
-
-            pre.extraction_speak_features(
-                user_index, other1_char, other2_char,
-                speak_prediction_time[0],
-                window_size[1],
-                pre_speak_frame[1],
-                user_date,
-                exp_date[0]
-            )
-            return
+            
+            # pre.extraction_speak_features(
+            #     user_index, other1_char, other2_char,
+            #     speak_prediction_time[0],
+            #     window_size[1],
+            #     pre_speak_frame[1],
+            #     user_date,
+            #     exp_date[0]
+            # )
 
             m = model_selection.ModelSelection()
             recall, precision, f1 = m.set_machine_learning_model(
@@ -71,15 +99,15 @@ def main():
 
     # result
     print("final recall score")
-    for i in range(8):
+    for i in range(len(user_charactor)):
         print(all_user_recall[i], end=",")
 
     print("\nfinal precision score")
-    for i in range(8):
+    for i in range(len(user_charactor)):
         print(all_user_precision[i], end=",")
 
     print("\nfinal f1 score")
-    for i in range(8):
+    for i in range(len(user_charactor)):
         print(all_user_f1[i], end=",")
 
 

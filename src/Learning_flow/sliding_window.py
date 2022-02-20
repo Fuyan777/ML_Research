@@ -172,6 +172,20 @@ class SlidingWindow():
             .rolling(window_size, min_periods=1)
             .apply(judge_is_speak_other)
         )
+
+        df_duration_of_other_speak = (
+            df_feature_value["duration_of_speak_other"]
+            .shift(shift_size)
+            .rolling(window_size, min_periods=1)
+            .apply(judge_duration_of_other_speak)
+        )
+
+        df_duration_of_other_non_speak = (
+            df_feature_value["duration_of_non_speak_other"]
+            .shift(shift_size)
+            .rolling(window_size, min_periods=1)
+            .apply(judge_duration_of_other_speak)
+        )
         # print("=========ウィンドウ処理（speak status）==============")
         # df_other_non_speak = (
         #     df_feature_value[feature_list_user]
@@ -214,7 +228,9 @@ class SlidingWindow():
                 df_med,
                 df_skew,
                 df_kurt,
-                df_other_speak
+                df_other_speak,
+                df_duration_of_other_speak,
+                df_duration_of_other_non_speak,
                 # df_other_speak1,
                 # df_other_speak2,
                 # df_other_non_speak,
@@ -461,9 +477,17 @@ def judge_y_pre(array_value):
 
 def judge_is_speak_other(array_value):
     if any(array_value.isin([speak_value])):
+        return speak_value
+    else:
+        return non_speak_value
+
+# 発話継続時間
+def judge_duration_of_other_speak(array_value):
+    # 配列の最後の要素が0 (発話 or 非発話) の時は時間をリセット
+    if array_value.iloc[-1] == 0:
         return 0
     else:
-        return 1
+        return array_value.sum()
 
 # 発話状態
 # 非発話
@@ -510,8 +534,6 @@ def count_other_au(array_value):
     if any(array_value.isin([np.nan])):
         return 0
 
-    # print(array_value)
-    # print((array_value > 0).sum())
     return (array_value > 0).sum()
 
 

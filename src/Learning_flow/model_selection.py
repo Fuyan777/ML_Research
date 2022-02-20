@@ -24,7 +24,6 @@ from sklearn.model_selection import TimeSeriesSplit
 from imblearn.under_sampling import RandomUnderSampler
 from collections import Counter
 from sklearn.inspection import permutation_importance
-import shap
 
 
 class ModelSelection:
@@ -146,25 +145,21 @@ def make_random_forest_k_hold_validation(
     # recording
     output_array.append("■ score")
     output_array.append("f_score list: {}".format(scores))
-    output_array.append(
-        "Average score(F-measure): {}\n".format(round(np.mean(scores), 3)))
+    output_array.append("Average score(F-measure): {}\n".format(round(np.mean(scores), 3)))
 
     scores_precision = cross_val_score(rf, _X, _y, cv=cv, scoring="precision")
 
     output_array.append("precision list: {}".format(scores_precision))
-    output_array.append("Average score(precision): {}\n".format(
-        round(np.mean(scores_precision), 3)))
+    output_array.append("Average score(precision): {}\n".format(round(np.mean(scores_precision), 3)))
 
     scores_recall = cross_val_score(rf, _X, _y, cv=5, scoring="recall")
 
     output_array.append("recall list: {}".format(scores_recall))
-    output_array.append(
-        "Average score(recall): {}\n".format(round(np.mean(scores_recall), 3)))
+    output_array.append("Average score(recall): {}\n".format(round(np.mean(scores_recall), 3)))
 
     # printing
     print("recall      : {}".format(round(np.mean(scores_recall), 3)))
-    print("precision   : {}".format(
-        round(np.mean(scores_precision), 3)))
+    print("precision   : {}".format(round(np.mean(scores_precision), 3)))
     print("F-measure   : {}".format(round(np.mean(scores), 3)))
 
     feature, score_value, top_30_variable, top_20_variable = feature_importance(
@@ -194,12 +189,12 @@ def make_random_forest_k_hold_validation(
     # shap.summary_plot(shap_values, X, plot_type="bar", feature_names=X.columns)
 
     # recording
-    # write_txt_log_data(
-    #     user_charactor,
-    #     str_feature_value,
-    #     user_date,
-    #     output_array
-    # )
+    write_txt_log_data(
+        user_charactor,
+        str_feature_value,
+        user_date,
+        output_array
+    )
 
     # feature_selection_RFE(rf, _X, _y)
 

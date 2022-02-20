@@ -19,6 +19,11 @@ import seaborn as sns
 # SettingWithCopyWarningの非表示
 warnings.simplefilter("ignore")
 
+# 発話ラベル
+speak_value = 0
+# 非発話ラベル
+non_speak_value = 1
+
 feature_au_list_forcus = [" AU06_r", " AU12_r", " AU14_r", " AU25_r", " AU26_r"]
 
 
@@ -163,7 +168,7 @@ class Preprocessing:
         #                 end_speak, user_charactor, exp_date)
 
         # 可視化のみはここで止める
-        return
+        # return
 
         # ウィンドウ処理前の顔特徴データのロード
         previous_window_face_data = data.load_previous_window_face_data(
@@ -367,7 +372,7 @@ def create_csv_labeling_face_by_speak(
         ] = np.sqrt(ts_df[" gaze_angle_x"] ** 2 + ts_df[" gaze_angle_y"] ** 2)
 
         # 発話 or 非発話　のラベル付け
-        ts_df["y"] = 0 if label[index] == "x" else 1
+        ts_df["y"] = speak_value if label[index] == "x" else non_speak_value
 
         ts_df_feature = ts_df.drop([" timestamp", " y_62", " y_66"], axis=1)
 
@@ -381,7 +386,7 @@ def create_csv_labeling_face_by_speak(
     for index in range(len(speak_label1)):
         ts_df_other1 = df_face[(df_face[" timestamp"] >= start_time1[index]) & (df_face[" timestamp"] <= end_time1[index])]
         # 0が発話, 1が非発話
-        ts_df_other1["isSpeak_other1"] = 0 if speak_label1[index] == "speech" else 1
+        ts_df_other1["isSpeak_other1"] = speak_value if speak_label1[index] == "speech" else non_speak_value
         is_speak_other1 = ts_df_other1["isSpeak_other1"]
         # 縦に結合
         df_header_other1 = pd.concat([df_header_other1, is_speak_other1], axis=0)
@@ -390,7 +395,7 @@ def create_csv_labeling_face_by_speak(
     df_header_other2 = pd.DataFrame()
     for index in range(len(speak_label2)):
         ts_df_other2 = df_face[(df_face[" timestamp"] >= start_time2[index]) & (df_face[" timestamp"] <= end_time2[index])]
-        ts_df_other2["isSpeak_other2"] = 0 if speak_label2[index] == "speech" else 1
+        ts_df_other2["isSpeak_other2"] = speak_value if speak_label2[index] == "speech" else non_speak_value
         is_speak_other2 = ts_df_other2["isSpeak_other2"]
         # 縦に結合
         df_header_other2 = pd.concat([df_header_other2, is_speak_other2], axis=0)
@@ -408,27 +413,61 @@ def create_csv_labeling_face_by_speak(
     # other1,2をデータに結合
     df_joined = df_header_all.join([df_header_other1, df_header_other2])
     # NaNを見つけたら1(non-speak) を代入
-    df_joined[df_joined["isSpeak_other1"].isna() == True] = 1
-    df_joined[df_joined["isSpeak_other2"].isna() == True] = 1
+    df_joined[df_joined["isSpeak_other1"].isna() == True] = non_speak_value
+    df_joined[df_joined["isSpeak_other2"].isna() == True] = non_speak_value
 
     # 和集合をとって，他者のどちらか一方が発話しているかのflagを作成
-    df_joined["isSpeak_other"] = 1
-    df_joined.loc[(df_joined["isSpeak_other1"] == 0).any() or (df_joined["isSpeak_other2"] == 0).any(), "isSpeak_other"] = 0
+    df_joined["isSpeak_other"] = non_speak_value
+    df_joined.loc[(df_joined["isSpeak_other1"] == speak_value), "isSpeak_other"] = speak_value
+    df_joined.loc[(df_joined["isSpeak_other2"] == speak_value), "isSpeak_other"] = speak_value
 
     # 発話時間の代入
+    zero = 0
     speak_frame_time = round(df_face[" timestamp"][1], 4)
+    df_joined["duration_of_speak_other1"] = zero
+    df_joined["duration_of_speak_other2"] = zero
+    df_joined["duration_of_speak_other"] = zero
 
-    df_joined["duration_of_speak_all"] = 0
-    df_joined["duration_of_speak1"] = 0
-    df_joined["duration_of_speak2"] = 0
+    df_joined.loc[df_joined["isSpeak_other1"] == speak_value, "duration_of_speak_other1"] = speak_frame_time
+    df_joined.loc[df_joined["isSpeak_other2"] == speak_value, "duration_of_speak_other2"] = speak_frame_time
+    df_joined.loc[df_joined["isSpeak_other"] == speak_value, "duration_of_speak_other"] = speak_frame_time
 
-    df_joined.loc[df_joined["isSpeak_other1"] == 0, "duration_of_speak1"] = speak_frame_time
-    df_joined.loc[df_joined["isSpeak_other2"] == 0, "duration_of_speak2"] = speak_frame_time
-    df_joined.loc[df_joined["isSpeak_other"] == 0, "duration_of_speak_all"] = speak_frame_time
 
-    print(df_joined)
+    # 無音時間の代入
+    df_joined["duration_of_non_speak_other1"] = zero
+    df_joined["duration_of_non_speak_other2"] = zero
+    df_joined["duration_of_non_speak_other"] = zero
 
+    df_joined.loc[df_joined["isSpeak_other1"] == non_speak_value, "duration_of_non_speak_other1"] = speak_frame_time
+    df_joined.loc[df_joined["isSpeak_other2"] == non_speak_value, "duration_of_non_speak_other2"] = speak_frame_time
+    df_joined.loc[df_joined["isSpeak_other"] == non_speak_value, "duration_of_non_speak_other"] = speak_frame_time
+
+    # 継続時間の積み上げ
+    d_s = "duration_of_speak_other"
+    d_non_s = "duration_of_non_speak_other"
+    # df_joined.loc[d_s]
+    # df_joined.loc[d_non_s]
+
+    index_df_joined = len(df_joined)
+    # print(df_joined)
+    d_s_columns = len(df_joined.columns) - 4
+    # print(d_s_columns)
+    # print(df_joined.iloc[:,d_s_columns])
+    d_non_s_columns = len(df_joined.columns) - 1
+
+    for i in range(index_df_joined):
+
+        if i > 0:
+            # 一つ前の行の要素が0以上なら前の要素を加算，0なら何もしない
+            if df_joined.iat[i-1, d_s_columns] > 0 and df_joined.iat[i, d_s_columns] > 0:
+                df_joined.iat[i, d_s_columns] += df_joined.iat[i-1, d_s_columns]
+
+            if df_joined.iat[i-1, d_non_s_columns] > 0 and df_joined.iat[i, d_non_s_columns] > 0:
+                df_joined.iat[i, d_non_s_columns] += df_joined.iat[i-1, d_non_s_columns]
+
+    # NaNの削除
     df_feature = df_joined.dropna()
+    print(df_feature)
 
     show_labeling_data_count(df_feature)
 
