@@ -146,10 +146,10 @@ class Preprocessing:
                                                            df_other_2_speak,
                                                            user_charactor, exp_date)
 
-        # AUの可視化
-        # show_au_time(df_face_feature, speak_label, start_speak,
-        #              end_speak, user_charactor, exp_date,
-        #              range_list_my_speak, range_list_other_1_speak, range_list_other_2_speak)
+        # # AUの可視化
+        show_au_time(df_face_feature, speak_label, start_speak,
+                     end_speak, user_charactor, exp_date,
+                     range_list_my_speak, range_list_other_1_speak, range_list_other_2_speak)
 
         # 顔特徴データのラベリング
         df_feature_reindex = create_csv_labeling_face_by_speak(
@@ -163,12 +163,14 @@ class Preprocessing:
             exp_date
         )
 
+        return
+
         # # マクロ特徴の可視化
-        # show_macro_time(df_face_feature, df_feature_reindex, speak_label, start_speak,
-        #                 end_speak, user_charactor, exp_date)
+        show_macro_time(df_face_feature, df_feature_reindex, speak_label, start_speak,
+                        end_speak, user_charactor, exp_date)
 
         # 可視化のみはここで止める
-        # return
+        return
 
         # ウィンドウ処理前の顔特徴データのロード
         previous_window_face_data = data.load_previous_window_face_data(
@@ -335,7 +337,6 @@ def create_csv_labeling_face_by_speak(
     face_data : pandas data from openface output file
     user_charactor : a, b, c, etc...
     speak_predeiction_time : 0.5s, 1.0s, 2.0, etc...
-
 
     Returns
     ----------
@@ -572,9 +573,10 @@ def show_macro_time(df_face_feature, df_face_calc, speak_label, speak_start,
     if not os.path.exists(saving_visual_image_path):
         os.mkdir(saving_visual_image_path)
 
+    line_color = 'black'
     # gaze
     fig_mouth, ax_mouth = plt.subplots(figsize=(10, 6))
-    ax_mouth.plot(df_timestamp.values, df_mouth, color='orange')
+    ax_mouth.plot(df_timestamp.values, df_mouth, color=line_color)
     ax_mouth.set_ylim(0, 100)
     ax_mouth.set_xlim(0, 600)
     ax_mouth.set_xlabel('meeting time [second]', fontsize=fontsize)
@@ -583,16 +585,16 @@ def show_macro_time(df_face_feature, df_face_calc, speak_label, speak_start,
     # pose
     fig_pose_Tx, ax_pose_Tx = plt.subplots(figsize=(10, 6))
     ax_pose_Tx.plot(df_timestamp.values,
-                    df_face_feature[" pose_Tx"], color='orange')
+                    df_face_feature[" pose_Tx"], color=line_color)
     ax_pose_Tx.set_ylim(0, 100)
-    ax_pose_Tx.set_xlim(0, 600)
+    ax_pose_Tx.set_xlim(216, 224)
     ax_pose_Tx.set_xlabel('meeting time [second]', fontsize=fontsize)
     ax_pose_Tx.set_ylabel('output value', fontsize=fontsize)
 
     # pose
     fig_pose_Tz, ax_pose_Tz = plt.subplots(figsize=(10, 6))
     ax_pose_Tz.plot(df_timestamp.values,
-                    df_face_feature[" pose_Tz"], color='orange')
+                    df_face_feature[" pose_Tz"], color=line_color)
     ax_pose_Tz.set_ylim(300, 600)
     ax_pose_Tz.set_xlim(15, 40)
     ax_pose_Tz.set_xlabel('meeting time [second]', fontsize=fontsize)
@@ -609,6 +611,7 @@ def show_macro_time(df_face_feature, df_face_calc, speak_label, speak_start,
     df_start_time = df_speak_label["start_time"]
     df_end_time = df_speak_label["end_time"]
 
+    face_color = '#80B3FF'
     # 発話区間の描写
     for index in range(len(df_speak_label)):
         collection = collections.BrokenBarHCollection.span_where(
@@ -616,7 +619,7 @@ def show_macro_time(df_face_feature, df_face_calc, speak_label, speak_start,
             ymin=300, ymax=600,
             where=(df_timestamp >= df_start_time.iloc[index]) & (
                 df_timestamp <= df_end_time.iloc[index]),
-            facecolor='blue', alpha=0.5)
+            facecolor=face_color, alpha=0.8)
         # ax_mouth.add_collection(collection)
         # ax_pose_Tx.add_collection(collection)
         ax_pose_Tz.add_collection(collection)
@@ -625,7 +628,7 @@ def show_macro_time(df_face_feature, df_face_calc, speak_label, speak_start,
     fig_pose_Tx.savefig(saving_visual_image_path+"/pose_Tx.png")
     fig_pose_Tz.savefig(saving_visual_image_path+"/pose_Tz.png")
 
-    plt.show()
+    # plt.show()
 
 
 #
@@ -653,10 +656,10 @@ feature_au_list = [" timestamp", " AU01_r", " AU02_r", " AU04_r", " AU05_r", " A
                    " AU07_r", " AU09_r", " AU10_r", " AU12_r", " AU14_r", " AU15_r",
                    " AU17_r", " AU20_r", " AU23_r", " AU25_r", " AU26_r", " AU45_r"]
 
-# b
-feature_au_arg = [" AU04_r", " AU06_r", " AU17_r"]
+# h
+feature_au_arg = [" AU25_r"]
 
-au_id = [" AU04_r", " AU06_r", " AU17_r",  "B", "A", "C"]
+au_id = [" AU25_r", "H", "G", "I"]
 
 # a
 # feature_au_arg = [" AU06_r", " AU12_r", " AU25_r"]
@@ -664,7 +667,7 @@ au_id = [" AU04_r", " AU06_r", " AU17_r",  "B", "A", "C"]
 # au_id = [" AU06_r", " AU12_r", " AU25_r",  "A", "B", "C"]
 
 
-au_ticks = [1, 3, 5, 7, 9, 11]
+au_ticks = [1, 3, 5, 7]
 
 color = ["lightgray", "peachpuff", "orange", "red", "darkred", "black"]
 
@@ -718,15 +721,15 @@ def show_au_time(df, label, start_time, end_time, user_charactor, exp_date, spea
         make_broken_barh(ax, range_4to5_list, index_au_id, color[5])
 
         ax.broken_barh(speak_list,
-                       (6, 2), facecolors="blue")
+                       (2, 2), facecolors="blue")
         ax.broken_barh(speak_list1,
-                       (8, 2), facecolors="purple")
+                       (4, 2), facecolors="purple")
         ax.broken_barh(speak_list2,
-                       (10, 2), facecolors="green")
+                       (6, 2), facecolors="green")
 
     # 値の範囲
-    ax.set_ylim(0, 12)
-    ax.set_xlim(0, 690)
+    ax.set_ylim(0, 8)
+    ax.set_xlim(300, 360)
     ax.set_xlabel('meeting time [second]', fontsize=fontsize)
     ax.set_ylabel('Action Unit / Speak Status', fontsize=fontsize)
     plt.xticks(fontsize=fontsize)
@@ -738,7 +741,7 @@ def show_au_time(df, label, start_time, end_time, user_charactor, exp_date, spea
         ax.axhline(au_ticks[i] + 1, linewidth=0.5, color="black")
 
     # 区切り線
-    ax.axhline(6, linewidth=3.0, color="black")
+    ax.axhline(2, linewidth=3.0, color="black")
 
     red_patch = mpatches.Patch(color=color[0], label='0')
     red_patch1 = mpatches.Patch(color=color[1], label='0.1-0.9')
