@@ -1,4 +1,3 @@
-labels	start	stop
 noise	0.0	1.98
 speech	1.98	8.9
 noise	8.9	19.28

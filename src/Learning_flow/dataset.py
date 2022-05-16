@@ -204,7 +204,8 @@ class Dataset:
         self,
         user_charactor,
         speak_prediction_time,
-        exp_date
+        exp_date,
+        header_index
     ):
         """ description
 
@@ -224,6 +225,7 @@ class Dataset:
             resources.face_feature_csv + "/%s-feature/feature-value/feat_val_%s_%s.csv"
             % (user_charactor, speak_prediction_time, exp_date),
             encoding="utf-8",
+            header=header_index
         )
         speak_data = pd.DataFrame(
             df, columns=resources.feature_all_reindex_colums)

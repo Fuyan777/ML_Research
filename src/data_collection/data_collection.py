@@ -3,11 +3,11 @@ from inaSpeechSegmenter.export_funcs import seg2csv
 
 
 # group
-# "g1_20210128", "g2_20220106", "g3_20220105"
-group_path = "g3_20220105"
+# "g1_20210128", "g2_20220106", "g3_20220105", "g4_20220212"
+group_path = "g3_20220330_screen_off"
 
-user = ["g"]
-file_path = "20220105"
+user = ["g", "h", "i"]
+file_path = "20220330_screen_off"
 
 
 def extraction_speak(

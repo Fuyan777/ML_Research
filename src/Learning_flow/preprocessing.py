@@ -32,7 +32,7 @@ class Preprocessing:
         print("Preprocessing")
 
     def union_all_user_csv_feature_value(self):
-        user = ["a", "b", "c", "d", "e", "f", "g", "h", "i"]
+        user = ["a", "b", "c", "d", "e", "f", "h", "i"]
         data = dataset.Dataset()
 
         exp_date = 0
@@ -47,28 +47,44 @@ class Preprocessing:
                 exp_date = "20220106"
             elif (user[i] == "g") or (user[i] == "h") or (user[i] == "i"):
                 exp_date = "20220105"
+            
+            df = data.load_feature_value(user[i],
+                                         speak_prediction_time,
+                                         exp_date, 0)
+            df_total_feature_value = df_total_feature_value.append(df, ignore_index=True)
+
+        for i in range(len(user)):
+            if (user[i] == "a") or (user[i] == "b") or (user[i] == "c"):
+                exp_date = "20211201"
+            elif (user[i] == "d") or (user[i] == "e") or (user[i] == "f"):
+                exp_date = "20220330_screen_share"
+            elif (user[i] == "g") or (user[i] == "h") or (user[i] == "i"):
+                exp_date = "20220330_screen_share"
 
             df = data.load_feature_value(user[i],
                                          speak_prediction_time,
-                                         exp_date)
+                                         exp_date, 0)
+            df_total_feature_value = df_total_feature_value.append(df, ignore_index=True)
 
-            # df_0 = df[df["y_pre_label"] == 0]
-            # df_1 = df[df["y_pre_label"] == 1].head(
-            #     len(df[df["y_pre_label"] == 0].index))
-            # (df_0)
-
-            # df_sorted = df_0.append(df_1, ignore_index=True)
-
-            # print("df_sported")
-            # print(len(df_sorted[df_sorted["y_pre_label"] == 0]))
-            # print(len(df_sorted[df_sorted["y_pre_label"] == 1]))
-            # print(len(df_sorted.index))
-
-            df_total_feature_value = df_total_feature_value.append(
-                df, ignore_index=True)
+        for i in range(len(user)):
+            if (user[i] == "a") or (user[i] == "b") or (user[i] == "c"):
+                exp_date = "20220401_screen_off"
+            elif (user[i] == "d") or (user[i] == "e") or (user[i] == "f"):
+                exp_date = "20220330_screen_off"
+            elif (user[i] == "g") or (user[i] == "h") or (user[i] == "i"):
+                exp_date = "20220330_screen_off"
+            
+            df = data.load_feature_value(user[i],
+                                         speak_prediction_time,
+                                         exp_date, 0)
+            df_total_feature_value = df_total_feature_value.append(df, ignore_index=True)
 
         print("合計")
         print(df_total_feature_value)
+        
+        print("shape")
+        print(df_total_feature_value.shape)
+
         return df_total_feature_value
 
     def extraction_speak_features(
@@ -147,9 +163,9 @@ class Preprocessing:
                                                            user_charactor, exp_date)
 
         # # AUの可視化
-        show_au_time(df_face_feature, speak_label, start_speak,
-                     end_speak, user_charactor, exp_date,
-                     range_list_my_speak, range_list_other_1_speak, range_list_other_2_speak)
+        # show_au_time(df_face_feature, speak_label, start_speak,
+        #              end_speak, user_charactor, exp_date,
+        #              range_list_my_speak, range_list_other_1_speak, range_list_other_2_speak)
 
         # 顔特徴データのラベリング
         df_feature_reindex = create_csv_labeling_face_by_speak(
@@ -163,14 +179,11 @@ class Preprocessing:
             exp_date
         )
 
-        return
-
-        # # マクロ特徴の可視化
-        show_macro_time(df_face_feature, df_feature_reindex, speak_label, start_speak,
-                        end_speak, user_charactor, exp_date)
+        # マクロ特徴の可視化
+        # show_macro_time(df_face_feature, df_feature_reindex, speak_label, start_speak,
+        #                 end_speak, user_charactor, exp_date)
 
         # 可視化のみはここで止める
-        return
 
         # ウィンドウ処理前の顔特徴データのロード
         previous_window_face_data = data.load_previous_window_face_data(
@@ -424,7 +437,14 @@ def create_csv_labeling_face_by_speak(
 
     # 発話時間の代入
     zero = 0
-    speak_frame_time = round(df_face[" timestamp"][1], 4)
+    during = 0 # frame間隔
+
+    try:
+        during = df_face[" timestamp"][1]
+    except KeyError:
+        during = df_face[" timestamp"][10] - df_face[" timestamp"][9]
+
+    speak_frame_time = round(during, 4)
     df_joined["duration_of_speak_other1"] = zero
     df_joined["duration_of_speak_other2"] = zero
     df_joined["duration_of_speak_other"] = zero

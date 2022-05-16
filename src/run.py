@@ -6,7 +6,7 @@ from learning_flow import preprocessing
 # ["a", "b", "c"] ["d", "e", "f"] ["g", "h", "i"]
 # ["a", "b", "c", "d", "e", "f", "g", "h", "i"]
 
-user_charactor = ["h"]
+user_charactor = ["c"]
 speak_prediction_time = ["1w_1s"]
 
 # ウィンドウサイズの設定w（0.033 : 0.5秒先=15, 1秒=30, 2秒=60, 3秒=90, 5秒=150 ）
@@ -20,7 +20,7 @@ pre_speak_frame = [6, 12, 24, 36, 60]
 str_feature_value = "all/"
 
 # abc: 20210128, def: 20220106 ghi: 20210615, 20220105
-exp_date = ["20220105"]
+exp_date = ["20220401_screen_off"]
 
 # スコア保持用
 all_user_recall = []
@@ -37,7 +37,7 @@ def main():
         exp_date = []
 
         if (user_index == "a") or (user_index == "b") or (user_index == "c"):
-            exp_date.append("20210128")
+            exp_date.append("20220401_screen_off")
             if user_index == "a":
                 other1_char = "b"
                 other2_char = "c"
@@ -49,7 +49,7 @@ def main():
                 other2_char = "b"
 
         elif (user_index == "d") or (user_index == "e") or (user_index == "f"):
-            exp_date.append("20220106")
+            exp_date.append("20220330_screen_share")
             if user_index == "d":
                 other1_char = "e"
                 other2_char = "f"
@@ -61,7 +61,7 @@ def main():
                 other2_char = "e"
 
         elif (user_index == "g") or (user_index == "h") or (user_index == "i"):
-            exp_date.append("20220105")
+            exp_date.append("20220330_screen_off")
             if user_index == "g":
                 other1_char = "h"
                 other2_char = "i"
@@ -77,15 +77,14 @@ def main():
         for date in exp_date:
             user_date = user_index + "-" + date
             
-            pre.extraction_speak_features(
-                user_index, other1_char, other2_char,
-                speak_prediction_time[0],
-                window_size[1],
-                pre_speak_frame[1],
-                user_date,
-                exp_date[0]
-            )
-            return
+            # pre.extraction_speak_features(
+            #     user_index, other1_char, other2_char,
+            #     speak_prediction_time[0],
+            #     window_size[1],
+            #     pre_speak_frame[1],
+            #     user_date,
+            #     exp_date[0]
+            # )
 
             m = model_selection.ModelSelection()
             recall, precision, f1 = m.set_machine_learning_model(
@@ -96,18 +95,18 @@ def main():
             all_user_precision.append(precision)
             all_user_f1.append(f1)
 
-    # result
-    print("final recall score")
-    for i in range(len(user_charactor)):
-        print(all_user_recall[i], end=",")
+    # # result
+    # print("final recall score")
+    # for i in range(len(user_charactor)):
+    #     print(all_user_recall[i], end=",")
 
-    print("\nfinal precision score")
-    for i in range(len(user_charactor)):
-        print(all_user_precision[i], end=",")
+    # print("\nfinal precision score")
+    # for i in range(len(user_charactor)):
+    #     print(all_user_precision[i], end=",")
 
-    print("\nfinal f1 score")
-    for i in range(len(user_charactor)):
-        print(all_user_f1[i], end=",")
+    # print("\nfinal f1 score")
+    # for i in range(len(user_charactor)):
+    #     print(all_user_f1[i], end=",")
 
 
 if __name__ == "__main__":

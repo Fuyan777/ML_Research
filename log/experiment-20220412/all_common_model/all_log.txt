@@ -1,0 +1,40 @@
+******* all/ *******
+
+■ sample
+variable rank: 124
+class 0: 14164
+all    : 28328
+
+■ confusion matrix
+[ 8940 5224 ]
+[ 6319 7845 ]
+
+■ score
+f_score list: [0.63432074 0.63215259 0.55522653 0.62339419 0.60215854]
+Average score(F-measure): 0.609
+
+precision list: [0.61262743 0.6511976  0.47819434 0.59792477 0.63675718]
+Average score(precision): 0.595
+
+recall list: [0.65760678 0.6141899  0.66184257 0.65112994 0.57112601]
+Average score(recall): 0.631
+
+■ feature importance
+
+var     importance
+duration_of_non_speak_other   0.11291
+ave_mouth   0.10456
+max_mouth   0.09236
+duration_of_speak_other   0.07654
+med_mouth   0.07027
+AU25_r_max   0.05294
+isSpeak_other   0.03997
+min_mouth   0.03293
+AU25_r_std   0.03174
+std_mouth   0.0289
+
+■ top30 percent importance
+0.3098296952186555
+['duration_of_non_speak_other', 'ave_mouth', 'max_mouth']
+■ top20 percent importance
+['duration_of_non_speak_other', 'ave_mouth']

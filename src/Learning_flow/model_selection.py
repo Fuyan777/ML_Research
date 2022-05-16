@@ -37,7 +37,7 @@ class ModelSelection:
         speak_feature_value = data.load_feature_value(
             user_charactor,
             speak_prediction_time,
-            exp_date
+            exp_date, 0
         )
 
         print("\n==================================")
@@ -46,8 +46,21 @@ class ModelSelection:
         print(str_feature_value)
         print("==================================\n")
 
+        # 予測時刻
+        prediction_time_str = "y_pre_label_5s"
+        # if speak_prediction_time == "1w_1s":
+        #     prediction_time_str = "y_pre_label"
+        # elif speak_prediction_time == "1w_0.5s":
+        #     prediction_time_str = "y_pre_label_0.5s"
+        # elif speak_prediction_time == "1w_2s":
+        #     prediction_time_str = "y_pre_label_2s"
+        # elif speak_prediction_time == "1w_3s":
+        #     prediction_time_str = "y_pre_label_3s"
+        # elif speak_prediction_time == "1w_5s":
+        #     prediction_time_str = "y_pre_label_5s"
+
         # 目的，説明変数の切り分け
-        y = speak_feature_value.loc[:, "y_pre_label"]
+        y = speak_feature_value.loc[:, prediction_time_str]
 
         print(speak_feature_value)
         X = speak_feature_value.loc[:,
@@ -55,6 +68,9 @@ class ModelSelection:
 
         print(y)
         print(X)
+
+        print("prediction_time_str")
+        print(prediction_time_str)        
 
         # 時系列的に予測する用のLeave one out
         # make_loo(X, y)
@@ -65,17 +81,17 @@ class ModelSelection:
         # x_dropped_highly_correlated, variable_rank = select_feature_confusion_matrix(
         #     X)
 
-        # # 全ての被験者丸ごと特徴量データ
-        # pre = preprocessing.Preprocessing()
-        # all_user_feature_value = pre.union_all_user_csv_feature_value()
-        # _y = all_user_feature_value.loc[:, "y_pre_label"]
-        # _X = all_user_feature_value.loc[:,
-        #                                 resources.x_variable_feature_all_colums]
+        # 全ての被験者丸ごと特徴量データ
+        pre = preprocessing.Preprocessing()
+        all_user_feature_value = pre.union_all_user_csv_feature_value()
+        _y = all_user_feature_value.loc[:, prediction_time_str]
+        _X = all_user_feature_value.loc[:,
+                                        resources.x_variable_feature_all_colums]
 
         recall, precision, f1 = make_random_forest_k_hold_validation(
             user_charactor,
             str_feature_value,
-            X, y,
+            _X, _y,
             exp_date, variable_rank
         )
 
